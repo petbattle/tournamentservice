@@ -1,14 +1,17 @@
-package com.petbattle;
+package com.petbattle.core;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import com.petbattle.api.TournamentAPI;
+import io.quarkus.launcher.shaded.org.slf4j.Logger;
+import io.quarkus.launcher.shaded.org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 public class Tournament {
+    private final Logger log = LoggerFactory.getLogger(Tournament.class);
     private int tournamentID;
     private long tournamentStartTS;
     private long tournamentEndTS;
-    private Map<String,PetVote> tournamentPets;
+    private Map<String, PetVote> tournamentPets;
 
     public int getTournamentID() {
         return this.tournamentID;
@@ -22,7 +25,8 @@ public class Tournament {
         return this.tournamentEndTS;
     }
 
-    private Tournament() {}
+    private Tournament() {
+    }
 
     public Tournament(int tournamentID) {
         this.tournamentID = tournamentID;
@@ -31,45 +35,55 @@ public class Tournament {
         this.tournamentStartTS = 0;
     }
 
-    public void addPet(String petID){
-        tournamentPets.putIfAbsent(petID, new PetVote());
+    public void addPet(String petID) {
+        tournamentPets.putIfAbsent(petID, new PetVote(petID));
     }
 
-    public int getPetTally(String petID){
+    public boolean isStarted(){
+        return (this.tournamentStartTS != 0);
+    }
+
+    public int getPetTally(String petID) {
         PetVote currPetVote = tournamentPets.get(petID);
-        if (currPetVote != null){
+        if (currPetVote != null) {
             return currPetVote.getVoteTally();
-        }else{
+        } else {
             return 0;
-        }        
+        }
     }
 
 
-    public Tournament StartTournament(){
+    public List<PetVote> getLeaderboard() {
+        List<PetVote> lbList = new ArrayList<>(tournamentPets.values());
+        Collections.sort(lbList);
+        return lbList;
+    }
+
+    public Tournament StartTournament() {
         this.tournamentStartTS = System.currentTimeMillis();
         return this;
     }
 
-    public Tournament EndTournament(){
+    public Tournament EndTournament() {
         this.tournamentEndTS = System.currentTimeMillis();
         return this;
     }
 
-    public void upVotePet(String petID){
+    public void upVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
         PetVote currPetVote = tournamentPets.get(petID);
-        if (currPetVote != null){
+        if (currPetVote != null) {
             currPetVote.upVote();
-            tournamentPets.put(petID,currPetVote);
+            tournamentPets.put(petID, currPetVote);
         }
     }
 
-    public void downVotePet(String petID){
+    public void downVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
         PetVote currPetVote = tournamentPets.get(petID);
-        if (currPetVote != null){
+        if (currPetVote != null) {
             currPetVote.downVote();
-            tournamentPets.put(petID,currPetVote);
+            tournamentPets.put(petID, currPetVote);
         }
     }
 
@@ -92,9 +106,9 @@ public class Tournament {
     @Override
     public String toString() {
         return "{" +
-            " tournamentID='" + getTournamentID() + "'" +
-            ", tournamentStartDT='" + getTournamentStartDT() + "'" +
-            ", tournamentEndDT='" + getTournamentEndDT() + "'" +
-            "}";
-    }    
+                " tournamentID='" + getTournamentID() + "'" +
+                ", tournamentStartDT='" + getTournamentStartDT() + "'" +
+                ", tournamentEndDT='" + getTournamentEndDT() + "'" +
+                "}";
+    }
 }

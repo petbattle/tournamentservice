@@ -1,14 +1,21 @@
-package com.petbattle;
+package com.petbattle.core;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PetVote {
+public class PetVote implements Comparable<PetVote>, Serializable {
     private int upVotes;
     private int downVotes;
+    private String petId;
 
-    public PetVote() {
+    public PetVote(String petId) {
         this.upVotes = 0;
         this.downVotes = 0;
+        this.petId = petId;
+    }
+
+    public String getPetID(){
+        return this.petId;
     }
 
     public void upVote() {
@@ -44,8 +51,13 @@ public class PetVote {
         return "{" +
             " upVotes='" + upVotes + "'" +
             ", downVotes='" + downVotes + "'" +
+            ", runningTotal='" + getVoteTally()+ "'" +
             "}";
     }
 
+    @Override
+    public int compareTo(PetVote o){
+        return  o.getVoteTally() - this.getVoteTally();
+    }
 
 }
