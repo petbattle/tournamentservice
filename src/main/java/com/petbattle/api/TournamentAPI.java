@@ -1,67 +1,137 @@
 package com.petbattle.api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
-import io.quarkus.launcher.shaded.org.slf4j.Logger;
-import io.quarkus.launcher.shaded.org.slf4j.LoggerFactory;
 import io.smallrye.mutiny.Uni;
-
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
+import org.eclipse.microprofile.openapi.annotations.info.Contact;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.info.License;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+@OpenAPIDefinition(
+        tags = {
+                @Tag(name = "tournament", description = "tournament operations."),
+        },
+        info = @Info(
+                title = "Tournament API",
+                version = "1.0.1",
+                contact = @Contact(
+                        name = "Tournament API Support",
+                        url = "http://exampleurl.com/contact",
+                        email = "techsupport@example.com"),
+                license = @License(
+                        name = "Apache 2.0",
+                        url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
+)
 @Path("/tournament")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class TournamentAPI {
-
     private final Logger log = LoggerFactory.getLogger(TournamentAPI.class);
-
+    private ObjectMapper jsonMapper;
+    private CollectionType javaType;
 
     @Inject
     EventBus bus;
 
+    public TournamentAPI() {
+        jsonMapper = new ObjectMapper();
+        javaType = jsonMapper.getTypeFactory()
+                .constructCollectionType(List.class, PetVote.class);
+    }
+
     @POST
-    public Uni<Integer> createTournament() {
-        return bus.<Integer>request("CreateTournament", "create")
+    public Uni<JsonObject> createTournament() {
+        log.info("Creating tournament");
+        return bus.<JsonObject>request("CreateTournament", "")
                 .onItem().apply(Message::body);
     }
 
     @GET
-    @Path("{id}/leaderboard ")
-    public List<PetVote> leaderboard(@PathParam("id") int tournamentID) {
-//        ArrayList<PetVote> res = new ArrayList<>();
-//        Uni<JsonObject> x = bus.<JsonObject>request("CreateTournament", "create")
-//                .onItem().apply(Message::body);
-//        x.subscribe().with(
-//                result -> System.out.println("result is " + result.encodePrettily()),
-//                failure -> failure.printStackTrace()
-//        );
+    @Path("{id}")
+    public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
+        log.info("Get status for tournament {}", tournamentID);
 
+        Uni<JsonObject> res = bus.<JsonObject>request("GetTournamentStatus", tournamentID)
+                .onItem().apply(Message::body);
 
-        bus.<JsonObject>request("CreateTournament", "create")
-                .onItem().apply(body -> {
-            ArrayList<PetVote> res = new ArrayList<>();
-            res = body.body().mapTo(ArrayList.class);
-            return res;
+        return res;
+    }
+
+    @GET
+    @Path("{id}/leaderboard")
+    public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
+        log.info("Get leaderboard for tournament {}", tournamentID);
+
+        Uni<String> res = bus.<String>request("GetLeaderboard", "tournamentID")
+                .onItem().apply(Message::body);
+
+        return res.onItem().apply(result -> {
+            List<PetVote> lb = new ArrayList<>();
+            try {
+                lb = jsonMapper.readValue(result, javaType);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            return lb;
         });
-        return null;
     }
 
-    @POST
-    @Path("{id}/start")
-    public void startTournament(@PathParam("id") int tournamentID) {
+    @PUT
+    @Path("{id}")
+    public void startTournament(@PathParam("id") String tournamentID) {
+        log.info("Start tournament {}", tournamentID);
+        bus.sendAndForget("StartTournament", tournamentID);
+        return;
+    }
+
+    @DELETE
+    @Path("{id}")
+    public void stopTournament(@PathParam("id") String tournamentID) {
+        log.info("Stop tournament {}", tournamentID);
+        bus.sendAndForget("StopTournament", tournamentID);
         return;
     }
 
     @POST
-    @Path("{id}/stop")
-    public void stopTournament(@PathParam("id") int tournamentID) {
+    @Path("{id}/add/{petId}")
+    public void addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
+        log.info("addPetToTournament {}:{}", tournamentID, petID);
+        JsonObject params = new JsonObject();
+        params.put("tournamentId", tournamentID);
+        params.put("petId", petID);
+        bus.sendAndForget("AddPetToTournament", params);
         return;
+    }
+
+    @POST
+    @Path("{id}/vote/{petId}")
+    public Response voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId")  String petID, @MatrixParam("dir") String direction) {
+        log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, direction);
+        if ((!direction.equalsIgnoreCase("up")) || (direction.equalsIgnoreCase("down")))
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        JsonObject params = new JsonObject();
+        params.put("timestamp",System.currentTimeMillis());
+        params.put("tournamentId", tournamentID);
+        params.put("petId", petID);
+        params.put("dir", "direction");
+        bus.sendAndForget("ProcessPetVote", params);
+        return Response.ok().build();
     }
 }

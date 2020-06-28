@@ -1,19 +1,25 @@
 package com.petbattle.core;
 
-import com.petbattle.api.TournamentAPI;
-import io.quarkus.launcher.shaded.org.slf4j.Logger;
-import io.quarkus.launcher.shaded.org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
 public class Tournament {
+    public enum TournamentState {
+        NotStarted,
+        Finished,
+        Running
+    }
+
+
     private final Logger log = LoggerFactory.getLogger(Tournament.class);
-    private int tournamentID;
+    private String tournamentID;
     private long tournamentStartTS;
     private long tournamentEndTS;
     private Map<String, PetVote> tournamentPets;
 
-    public int getTournamentID() {
+    public String getTournamentID() {
         return this.tournamentID;
     }
 
@@ -25,11 +31,10 @@ public class Tournament {
         return this.tournamentEndTS;
     }
 
-    private Tournament() {
-    }
 
-    public Tournament(int tournamentID) {
-        this.tournamentID = tournamentID;
+    public Tournament() {
+        UUID uuid = UUID.randomUUID();
+        this.tournamentID = uuid.toString();
         this.tournamentPets = new HashMap<>();
         this.tournamentEndTS = 0;
         this.tournamentStartTS = 0;
@@ -43,6 +48,10 @@ public class Tournament {
         return (this.tournamentStartTS != 0);
     }
 
+    public boolean isEnded(){
+        return (this.tournamentEndTS != 0);
+    }
+
     public int getPetTally(String petID) {
         PetVote currPetVote = tournamentPets.get(petID);
         if (currPetVote != null) {
@@ -51,7 +60,6 @@ public class Tournament {
             return 0;
         }
     }
-
 
     public List<PetVote> getLeaderboard() {
         List<PetVote> lbList = new ArrayList<>(tournamentPets.values());
@@ -64,7 +72,7 @@ public class Tournament {
         return this;
     }
 
-    public Tournament EndTournament() {
+    public Tournament StopTournament() {
         this.tournamentEndTS = System.currentTimeMillis();
         return this;
     }
@@ -110,5 +118,15 @@ public class Tournament {
                 ", tournamentStartDT='" + getTournamentStartDT() + "'" +
                 ", tournamentEndDT='" + getTournamentEndDT() + "'" +
                 "}";
+    }
+
+    public TournamentState getTournamentState() {
+        if (!this.isStarted())
+            return TournamentState.NotStarted;
+
+        if ((!this.isEnded()))
+            return TournamentState.Running;
+
+        return  TournamentState.Finished;
     }
 }

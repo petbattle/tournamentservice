@@ -1,5 +1,7 @@
 package com.petbattle.core;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -8,13 +10,30 @@ public class PetVote implements Comparable<PetVote>, Serializable {
     private int downVotes;
     private String petId;
 
+    public PetVote(int upVotes, int downVotes, String petId) {
+        this.upVotes = upVotes;
+        this.downVotes = downVotes;
+        this.petId = petId;
+    }
+
     public PetVote(String petId) {
         this.upVotes = 0;
         this.downVotes = 0;
         this.petId = petId;
     }
 
-    public String getPetID(){
+    public PetVote() {
+    }
+
+    public int getUpVotes() {
+        return upVotes;
+    }
+
+    public int getDownVotes() {
+        return downVotes;
+    }
+
+    public String getPetId(){
         return this.petId;
     }
 
@@ -26,6 +45,7 @@ public class PetVote implements Comparable<PetVote>, Serializable {
         this.downVotes++;
     }
 
+    @JsonIgnore
     public int getVoteTally() {
         return upVotes - downVotes;
     }
