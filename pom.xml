@@ -121,13 +121,15 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${compiler-plugin.version}</version>
         <configuration>
-          <compilerArgs>--enable-preview</compilerArgs>
+          <release>11</release>
+<!--          <compilerArgs>&#45;&#45;enable-preview</compilerArgs>-->
         </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-plugin.version}</version>
         <configuration>
+<!--          <argLine>&#45;&#45;enable-preview</argLine>-->
           <systemPropertyVariables>
             <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
           </systemPropertyVariables>

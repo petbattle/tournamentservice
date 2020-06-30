@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
 import io.quarkus.vertx.ConsumeEvent;
+import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,120 +21,125 @@ public class TournamentStateService {
     private Tournament currentTournament;
 
     @ConsumeEvent("StartTournament")
-    public void startTournament(String tournamentID) {
-        log.info("startTournament {}",tournamentID);
-        if (this.currentTournament == null) return;
+    public Uni<Object> startTournament(String tournamentID) {
+        log.info("startTournament {}", tournamentID);
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
-        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())){
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}",tournamentID,currentTournament.getTournamentID());
-        }else{
+        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+        } else {
             if (!this.currentTournament.isStarted())
                 currentTournament.StartTournament();
         }
+        return Uni.createFrom().item(new Object());
     }
 
     @ConsumeEvent("StopTournament")
-    public void stopTournament(String tournamentID) {
-        log.info("stopTournament {}",tournamentID);
-        if (this.currentTournament == null) return;
+    public Uni<Object> stopTournament(String tournamentID) {
+        log.info("stopTournament {}", tournamentID);
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
-        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())){
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}",tournamentID,currentTournament.getTournamentID());
-        }else{
-            if (this.currentTournament.isStarted())
+        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+        } else {
+            if (this.currentTournament.isStarted()) {
                 currentTournament.StopTournament();
-            // Now save the tournament to the DB and null tournamentID
 
+
+                //TODO Now save the tournament to the DB and null tournamentID
+                currentTournament = null;
+            }
         }
+        return Uni.createFrom().item(new Object());
     }
 
 
     @ConsumeEvent("GetTournamentStatus")
-    public JsonObject statusTournament(String tournamentID) {
-        log.info("statusTournament {}",tournamentID);
-        if (this.currentTournament == null) return null;
+    public Uni<JsonObject> statusTournament(String tournamentID) {
+        log.info("statusTournament {}", tournamentID);
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
-        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())){
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}",tournamentID,currentTournament.getTournamentID());
-            return null;
-        }else{
+        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+        } else {
             JsonObject res = new JsonObject();
-            return res.put("State",currentTournament.getTournamentState());
+            res.put("State", currentTournament.getTournamentState());
+            return Uni.createFrom().item(res);
         }
     }
 
     @ConsumeEvent("CreateTournament")
-    public JsonObject createTournament(String name) {
+    public Uni<JsonObject> createTournament(String name) {
         log.info("createTournament");
         JsonObject res = new JsonObject();
         if (this.currentTournament == null) {
             currentTournament = new Tournament();
-            res.put("TournamentID",currentTournament.getTournamentID());
-        }else
-        {
-            res.put("TournamentID",this.currentTournament.getTournamentID());
+            res.put("TournamentID", currentTournament.getTournamentID());
+        } else {
+            res.put("TournamentID", this.currentTournament.getTournamentID());
         }
-        return res;
+        return Uni.createFrom().item(res);
     }
 
     @ConsumeEvent("GetLeaderboard")
-    public String getTournamentLB(String tournamentID) throws JsonProcessingException {
-        log.info("getTournamentLB {}",tournamentID);
-        List<PetVote> res = new ArrayList<>();
-        res.add(new PetVote("0"));
-        res.add(new PetVote("2"));
-        res.add(new PetVote("3"));
-        res.add(new PetVote("4"));
-        res.add(new PetVote("5"));
+    public Uni<String> getTournamentLB(String tournamentID) throws JsonProcessingException {
+        log.info("getTournamentLB {}", tournamentID);
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+
+        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+        }
 
         ObjectMapper mapper = new ObjectMapper();
-        String jsonArray = mapper.writeValueAsString(res);
+        String jsonArray = mapper.writeValueAsString(this.currentTournament.getLeaderboard());
 
-        return jsonArray;
+        return Uni.createFrom().item(jsonArray);
     }
 
     @ConsumeEvent("AddPetToTournament")
-    public void addPetToTournament(JsonObject params) {
-        log.info("addPetToTournament");
-        if (this.currentTournament == null) return;
-
+    public Uni<Object> addPetToTournament(JsonObject params) {
         String tourID = params.getString("tournamentId");
         String petID = params.getString("petId");
-        if (currentTournament.isStarted()){
-            log.warn("Tournament started, addPetToTournament {}:{} not allowed",tourID,petID);
-            return;
+        log.info("addPetToTournament {}:{}", tourID, petID);
+
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+
+        if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tourID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
         }
-        log.info("addPetToTournament {}:{}",tourID,petID);
-        if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())){
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}",tourID,currentTournament.getTournamentID());
-        }else{
-            currentTournament.addPet(petID);
+
+        if (currentTournament.isStarted()) {
+            log.warn("Tournament started, addPetToTournament {}:{} not allowed", tourID, petID);
+            return Uni.createFrom().failure(new Exception("TournamentId already active unable to add pet"));
         }
+        currentTournament.addPet(petID);
+        return Uni.createFrom().item(new Object());
     }
 
     @ConsumeEvent("ProcessPetVote")
-    public void voteForPetInTournament(JsonObject params) {
-        log.info("voteForPetInTournament");
-
+    public Uni<Object> voteForPetInTournament(JsonObject params) {
         String tourID = params.getString("tournamentId");
         String petID = params.getString("petId");
-        long timestamp= params.getLong("timestamp");
-        String direction= params.getString("dir");
+        long timestamp = params.getLong("timestamp");
+        String direction = params.getString("dir");
 
-        if (this.currentTournament == null){
-            log.warn("Tournament not started, voteForPetInTournament {}:{} not allowed",tourID,petID);
-            return;
-        }
-        log.info("voteForPetInTournament {}:{} dir {} @TS {}",tourID,petID,direction,timestamp );
-        if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())){
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}",tourID,currentTournament.getTournamentID());
-        }else{
-            if (direction.equals("up"))
-                this.currentTournament.upVotePet(petID);
-            else
-                this.currentTournament.downVotePet(petID);
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
+        log.info("voteForPetInTournament {}:{} dir {} @TS {}", tourID, petID, direction, timestamp);
+        if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tourID, currentTournament.getTournamentID());
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
         }
+        if (direction.equalsIgnoreCase("up"))
+            this.currentTournament.upVotePet(petID);
+        else
+            this.currentTournament.downVotePet(petID);
+
+        return Uni.createFrom().item(new Object());
     }
-
 }

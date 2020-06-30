@@ -83,6 +83,7 @@ public class Tournament {
         if (currPetVote != null) {
             currPetVote.upVote();
             tournamentPets.put(petID, currPetVote);
+            log.info("UpVote {}",currPetVote.toString());
         }
     }
 
@@ -92,6 +93,7 @@ public class Tournament {
         if (currPetVote != null) {
             currPetVote.downVote();
             tournamentPets.put(petID, currPetVote);
+            log.info("DownVote {}",currPetVote.toString());
         }
     }
 

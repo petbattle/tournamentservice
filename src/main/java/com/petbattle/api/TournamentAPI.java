@@ -9,7 +9,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
-import org.eclipse.microprofile.openapi.annotations.enums.ParameterStyle;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class TournamentAPI {
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
-        Uni<String> res = bus.<String>request("GetLeaderboard", "tournamentID")
+        Uni<String> res = bus.<String>request("GetLeaderboard", tournamentID)
                 .onItem().apply(Message::body);
 
         return res.onItem().apply(result -> {
@@ -95,43 +93,43 @@ public class TournamentAPI {
 
     @PUT
     @Path("{id}")
-    public void startTournament(@PathParam("id") String tournamentID) {
+    public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
-        bus.sendAndForget("StartTournament", tournamentID);
-        return;
+        return bus.<JsonObject>request("StartTournament", tournamentID)
+                .onItem().apply(Message::body);
     }
 
     @DELETE
     @Path("{id}")
-    public void stopTournament(@PathParam("id") String tournamentID) {
+    public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
-        bus.sendAndForget("StopTournament", tournamentID);
-        return;
+        return bus.<JsonObject>request("StopTournament", tournamentID)
+                .onItem().apply(Message::body);
     }
 
     @POST
     @Path("{id}/add/{petId}")
-    public void addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
+    public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
-        bus.sendAndForget("AddPetToTournament", params);
-        return;
+        return bus.<JsonObject>request("AddPetToTournament", params)
+                .onItem().apply(Message::body);
     }
 
     @POST
     @Path("{id}/vote/{petId}")
-    public Response voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId")  String petID, @MatrixParam("dir") String direction) {
-        log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, direction);
-        if ((!direction.equalsIgnoreCase("up")) || (direction.equalsIgnoreCase("down")))
-            return Response.status(Response.Status.BAD_REQUEST).build();
+    public Uni<Object> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @QueryParam("dir") String dir) {
+        log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
+        if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
+            return Uni.createFrom().failure(new Exception("Invalid Request"));
         JsonObject params = new JsonObject();
-        params.put("timestamp",System.currentTimeMillis());
+        params.put("timestamp", System.currentTimeMillis());
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
-        params.put("dir", "direction");
-        bus.sendAndForget("ProcessPetVote", params);
-        return Response.ok().build();
+        params.put("dir", dir);
+        return bus.<JsonObject>request("ProcessPetVote", params)
+                .onItem().apply(Message::body);
     }
 }
