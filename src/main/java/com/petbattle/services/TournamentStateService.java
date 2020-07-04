@@ -4,21 +4,27 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
+import com.petbattle.repository.TournamentRepository;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
 @ApplicationScoped
 public class TournamentStateService {
 
-    private final Logger log = LoggerFactory.getLogger(TournamentStateService.class);
+    @Inject
+    TournamentRepository tournamentRepository;
+
     private Tournament currentTournament;
+    private final Logger log = LoggerFactory.getLogger(TournamentStateService.class);
 
     @ConsumeEvent("StartTournament")
     public Uni<Object> startTournament(String tournamentID) {
@@ -46,10 +52,7 @@ public class TournamentStateService {
         } else {
             if (this.currentTournament.isStarted()) {
                 currentTournament.StopTournament();
-
-
-                //TODO Now save the tournament to the DB and null tournamentID
-                currentTournament = null;
+                tournamentRepository.persist(currentTournament);
             }
         }
         return Uni.createFrom().item(new Object());
@@ -76,7 +79,7 @@ public class TournamentStateService {
         log.info("createTournament");
         JsonObject res = new JsonObject();
         if (this.currentTournament == null) {
-            currentTournament = new Tournament();
+            this.currentTournament = new Tournament();
             res.put("TournamentID", currentTournament.getTournamentID());
         } else {
             res.put("TournamentID", this.currentTournament.getTournamentID());
@@ -84,19 +87,28 @@ public class TournamentStateService {
         return Uni.createFrom().item(res);
     }
 
+    @ConsumeEvent("CancelCurrentTournament")
+    public void cancelTournament(String name) {
+        log.info("cancelTournament");
+        currentTournament = null;
+    }
+
     @ConsumeEvent("GetLeaderboard")
     public Uni<String> getTournamentLB(String tournamentID) throws JsonProcessingException {
+        List<PetVote> res = new ArrayList<>();
         log.info("getTournamentLB {}", tournamentID);
-        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
-        if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
-            log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
-            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+        if (this.currentTournament == null) {
+            Tournament oldTournament = tournamentRepository.findById(new ObjectId(tournamentID));
+            res = oldTournament.getLeaderboard();
+        } else {
+            if (tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
+                res = this.currentTournament.getLeaderboard();
+            }
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        String jsonArray = mapper.writeValueAsString(this.currentTournament.getLeaderboard());
-
+        String jsonArray = mapper.writeValueAsString(res);
         return Uni.createFrom().item(jsonArray);
     }
 

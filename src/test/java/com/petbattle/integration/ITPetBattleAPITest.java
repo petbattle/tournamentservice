@@ -1,21 +1,18 @@
-package com.petbattle;
+package com.petbattle.integration;
 
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Map;
-
-import static io.restassured.RestAssured.*;
+import static io.restassured.RestAssured.get;
+import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 
 @QuarkusTest
-public class PetBattleAPITest {
+public class ITPetBattleAPITest {
 
     @Test
     @Order(1)
@@ -32,12 +29,20 @@ public class PetBattleAPITest {
                 .response();
 
         String TID = response.getBody().jsonPath().getString("TournamentID");
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
+
         System.out.println(TID);
     }
 
     @Test
     @Order(2)
     public void testCreateStartStopStatusTournamentEndpoints() {
+        //Create Tournament
         Response response = given()
                 .contentType(JSON)
                 .when()
@@ -51,6 +56,7 @@ public class PetBattleAPITest {
 
         String TID = response.getBody().jsonPath().getString("TournamentID");
 
+        //Get Tournament state
         given()
                 .contentType(JSON)
                 .when()
@@ -59,6 +65,7 @@ public class PetBattleAPITest {
                 .statusCode(200)
                 .body("State", equalTo("NotStarted"));
 
+        //Start the tournament
         given()
                 .contentType(JSON)
                 .when()
@@ -66,6 +73,7 @@ public class PetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Get Tournament state
         given()
                 .contentType(JSON)
                 .when()
@@ -74,29 +82,36 @@ public class PetBattleAPITest {
                 .statusCode(200)
                 .body("State", equalTo("Running"));
 
-
+        //Stop the tournament
         given()
                 .contentType(JSON)
                 .when()
                 .delete("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200);
-
-        //Should throw an exception if you try to get the status after stopping the tournament
+        
+        //Get Tournament state
         given()
                 .contentType(JSON)
                 .when()
                 .get("/tournament/{tid}", TID)
                 .then()
-                .statusCode(500);
+                .statusCode(200)
+                .body("State", equalTo("Finished"));
+
+        //Cancel the tournament
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 
     @Test
     @Order(3)
     public void testCreatTournamentAddPetsEndpoints() {
-
-
-
+        //Create the tournament
         Response response = given()
                 .contentType(JSON)
                 .when()
@@ -108,9 +123,8 @@ public class PetBattleAPITest {
                 .extract()
                 .response();
 
-
-
         String TID = response.getBody().jsonPath().getString("TournamentID");
+        //Stop the tournament
         given()
                 .contentType(JSON)
                 .when()
@@ -139,6 +153,13 @@ public class PetBattleAPITest {
                 .post("/tournament/{tid}/add/12345", TID)
                 .then()
                 .statusCode(200);
+
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 
     @Test
@@ -179,6 +200,13 @@ public class PetBattleAPITest {
                 .post("/tournament/{tid}/add/12345", TID)
                 .then()
                 .statusCode(500);
+
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 
     @Test
@@ -194,6 +222,8 @@ public class PetBattleAPITest {
                 .body(notNullValue())
                 .extract()
                 .response();
+
+        String TID = response.getBody().jsonPath().getString("TournamentID");
 
         given()
                 .contentType(JSON)
@@ -222,6 +252,13 @@ public class PetBattleAPITest {
                 .post("/tournament/{tid}/add/12345", "INVALIDTESTID")
                 .then()
                 .statusCode(500);
+
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 
     @Test
@@ -307,8 +344,24 @@ public class PetBattleAPITest {
                 .extract()
                 .response();
 
-        String json = res.asString();
-        JsonPath jp = new JsonPath(json);
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}", TID)
+                .then()
+                .statusCode(200);
+
+        Response res2 = get("/tournament/{tid}/leaderboard", TID)
+                .then()
+                .statusCode(200)
+                .contentType(JSON)
+                .extract()
+                .response();
+
+        String json1 = res.asString();
+        String json2 = res2.asString();
+
+//        JsonPath jp = new JsonPath(json);
 
         //TODO : Add validation
     }

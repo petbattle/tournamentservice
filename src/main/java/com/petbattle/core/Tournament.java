@@ -1,22 +1,32 @@
 package com.petbattle.core;
 
+import io.quarkus.mongodb.panache.MongoEntity;
+import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
+import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
+import org.bson.codecs.pojo.annotations.BsonId;
+import org.bson.codecs.pojo.annotations.BsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-public class Tournament {
+@MongoEntity(collection="Tournaments")
+public class Tournament extends PanacheMongoEntityBase {
     public enum TournamentState {
         NotStarted,
         Finished,
         Running
     }
 
-
+    @BsonIgnore
     private final Logger log = LoggerFactory.getLogger(Tournament.class);
+
+    @BsonId
     private String tournamentID;
+
     private long tournamentStartTS;
     private long tournamentEndTS;
+
     private Map<String, PetVote> tournamentPets;
 
     public String getTournamentID() {

@@ -1,4 +1,4 @@
-package com.petbattle;
+package com.petbattle.unit;
 
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;

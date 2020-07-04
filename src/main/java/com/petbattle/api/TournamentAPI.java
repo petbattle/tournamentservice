@@ -107,6 +107,13 @@ public class TournamentAPI {
                 .onItem().apply(Message::body);
     }
 
+    @DELETE
+    @Path("{id}/cancel")
+    public void cancelTournament(@PathParam("id") String tournamentID) {
+        log.info("Cancel tournament {}", tournamentID);
+        bus.sendAndForget("CancelCurrentTournament", tournamentID);
+    }
+
     @POST
     @Path("{id}/add/{petId}")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
