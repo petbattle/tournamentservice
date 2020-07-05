@@ -48,7 +48,7 @@ public class TournamentStateService {
 
         if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
             log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
-            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+            return Uni.createFrom().failure(new Exception("Incorrect TournamentId, can only stop the current tournament"));
         } else {
             if (this.currentTournament.isStarted()) {
                 currentTournament.StopTournament();

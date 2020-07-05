@@ -10,12 +10,14 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 public class ITPetBattleAPITest {
 
     @Test
-    @Order(1)
+    @Order(1) 
     public void testNewTournamentEndpoint() {
         Response response = given()
                 .contentType(JSON)
@@ -89,7 +91,7 @@ public class ITPetBattleAPITest {
                 .delete("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200);
-        
+
         //Get Tournament state
         given()
                 .contentType(JSON)
@@ -344,6 +346,7 @@ public class ITPetBattleAPITest {
                 .extract()
                 .response();
 
+        //Stop the test
         given()
                 .contentType(JSON)
                 .when()
@@ -360,6 +363,8 @@ public class ITPetBattleAPITest {
 
         String json1 = res.asString();
         String json2 = res2.asString();
+
+        assertThat(json1,equalTo(json2));
 
 //        JsonPath jp = new JsonPath(json);
 
