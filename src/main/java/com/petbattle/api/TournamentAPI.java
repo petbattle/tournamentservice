@@ -17,8 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -127,16 +129,17 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/vote/{petId}")
-    public Uni<Object> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @QueryParam("dir") String dir) {
+    public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
-            return Uni.createFrom().failure(new Exception("Invalid Request"));
+            return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST)).onItem().apply(Response.ResponseBuilder::build);
         JsonObject params = new JsonObject();
         params.put("timestamp", System.currentTimeMillis());
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
         params.put("dir", dir);
         return bus.<JsonObject>request("ProcessPetVote", params)
-                .onItem().apply(Message::body);
+                .onItem().apply(b -> Response.ok(b.body()).build())
+                .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
 }

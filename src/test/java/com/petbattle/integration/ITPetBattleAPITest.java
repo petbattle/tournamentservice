@@ -112,7 +112,7 @@ public class ITPetBattleAPITest {
 
     @Test
     @Order(3)
-    public void testCreatTournamentAddPetsEndpoints() {
+    public void testCreateTournamentAddPetsEndpoints() {
         //Create the tournament
         Response response = given()
                 .contentType(JSON)
@@ -369,5 +369,77 @@ public class ITPetBattleAPITest {
 //        JsonPath jp = new JsonPath(json);
 
         //TODO : Add validation
+    }
+
+    @Test
+    @Order(6)
+    public void testValidateVoteEndpoint() {
+        Response response = given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament")
+                .then()
+                .statusCode(200)
+                .contentType(JSON)
+                .body(notNullValue())
+                .extract()
+                .response();
+
+        String TID = response.getBody().jsonPath().getString("TournamentID");
+
+        given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/{tid}/add/1", TID)
+                .then()
+                .statusCode(200);
+
+        //Start the tournament
+        given()
+                .contentType(JSON)
+                .when()
+                .put("/tournament/{tid}", TID)
+                .then()
+                .statusCode(200);
+
+        given()
+                .contentType(JSON)
+                .when()
+                .get("/tournament/{tid}", TID)
+                .then()
+                .statusCode(200)
+                .body("State", equalTo("Running"));
+
+        //Missing vote direction
+        given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/{tid}/vote/1", TID)
+                .then()
+                .statusCode(400);
+
+
+        //Invalid vote direction
+        given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/{tid}/vote/1?dir=fail", TID)
+                .then()
+                .statusCode(400);
+
+        //Correct voting
+        given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/{tid}/vote/1?dir=up", TID)
+                .then()
+                .statusCode(200);
+
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 }

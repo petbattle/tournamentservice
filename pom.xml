@@ -45,18 +45,11 @@
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
         </dependency>
-
-<!--        <dependency>-->
-<!--            <groupId>io.quarkus</groupId>-->
-<!--            <artifactId>quarkus-mutiny</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                <groupId>io.quarkus.gizmo</groupId>-->
-<!--                <artifactId>gizmo</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-hibernate-validator</artifactId>
+            <version>1.5.1.Final</version>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-mutiny-deployment</artifactId>
