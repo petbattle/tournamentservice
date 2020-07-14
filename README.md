@@ -21,3 +21,10 @@ e.g. mongod -vvv --dbpath=<some location>
 ```
 mvn verify -Pintegration
 ```
+
+## Leaderboard
+
+Browse to tournament
+```bash
+http://localhost:8080/tournament/leaderboard/af5f24cc-20ec-4086-9755-111c8da8b526
+```

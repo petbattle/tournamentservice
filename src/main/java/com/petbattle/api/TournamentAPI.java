@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
+import io.quarkus.qute.Template;
+import io.quarkus.qute.TemplateInstance;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -44,6 +46,9 @@ public class TournamentAPI {
     private final Logger log = LoggerFactory.getLogger(TournamentAPI.class);
     private ObjectMapper jsonMapper;
     private CollectionType javaType;
+
+    @Inject
+    Template leaderboard;
 
     @Inject
     EventBus bus;
@@ -139,4 +144,15 @@ public class TournamentAPI {
         return bus.<JsonObject>request("ProcessPetVote", params)
                 .onItem().apply(Message::body);
     }
+
+    @GET
+    @Consumes(MediaType.TEXT_HTML)
+    @Produces(MediaType.TEXT_HTML)
+    @Path("leaderboard/{id}")
+    public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
+        List<PetVote> l = leaderboard(tournamentID).await().indefinitely();
+        log.info("l: {}", l);
+        return leaderboard.data("pets", l);
+    }
+
 }
