@@ -164,9 +164,7 @@ public class TournamentAPI {
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
-        List<PetVote> l = leaderboard(tournamentID).await().indefinitely();
-        log.info("l: {}", l);
-        return leaderboard.data("pets", l);
+        return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());
     }
 
 }
