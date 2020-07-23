@@ -11,7 +11,6 @@ import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 public class ITPetBattleAPITest {
@@ -337,7 +336,17 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Get votes for pet
+        Response res0 = given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/votes/4", TID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
 
+        System.out.println("BOOMMMMMMMM---->"+res0.asString());
 
         Response res = get("/tournament/{tid}/leaderboard", TID)
                 .then()

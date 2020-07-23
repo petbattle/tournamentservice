@@ -5,10 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
 import com.petbattle.repository.TournamentRepository;
+import io.quarkus.infinispan.client.Remote;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import org.bson.types.ObjectId;
+import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +24,10 @@ public class TournamentStateService {
 
     @Inject
     TournamentRepository tournamentRepository;
+
+    @Inject
+    @Remote("VotesCache")
+    RemoteCache<String, PetVote> voteCache;
 
     private Tournament currentTournament;
     private final Logger log = LoggerFactory.getLogger(TournamentStateService.class);
@@ -76,6 +82,7 @@ public class TournamentStateService {
 
     @ConsumeEvent("CreateTournament")
     public Uni<JsonObject> createTournament(String name) {
+        voteCache.put("123123",new PetVote("a",1,1));
         log.info("createTournament");
         JsonObject res = new JsonObject();
         if (this.currentTournament == null) {
@@ -153,5 +160,13 @@ public class TournamentStateService {
             this.currentTournament.downVotePet(petID);
 
         return Uni.createFrom().item(new Object());
+    }
+
+    @ConsumeEvent("GetPetVote")
+    public Uni<PetVote> getVoteForPetInTournament(JsonObject params) {
+        String petID = params.getString("petId");
+        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+        log.info("getVoteForPetInTournament {}", petID);
+        return Uni.createFrom().item(this.currentTournament.getPetVote(petID));
     }
 }

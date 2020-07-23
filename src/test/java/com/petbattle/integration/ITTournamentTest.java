@@ -1,7 +1,10 @@
-package com.petbattle.unit;
+package com.petbattle.integration;
 
+import com.petbattle.containers.InfinispanTestContainer;
+import com.petbattle.containers.MongoTestContainer;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -10,7 +13,9 @@ import java.util.List;
 import java.util.Random;
 
 @QuarkusTest
-public class TournamentTest {
+@QuarkusTestResource(MongoTestContainer.class)
+@QuarkusTestResource(InfinispanTestContainer.class)
+public class ITTournamentTest {
 
     @Test
     public void testTournamentInit() {

@@ -149,6 +149,17 @@ public class TournamentAPI {
     }
 
     @GET
+    @Path("/votes/{petId}")
+    public Uni<Response> getVotesForPetInTournament( @PathParam("petId") String petID) {
+        log.info("getVotesForPetInTournament {}", petID);
+        JsonObject params = new JsonObject();
+        params.put("petId", petID);
+        return bus.<JsonObject>request("GetPetVote", params)
+                .onItem().apply(b -> Response.ok(b.body()).build())
+                .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
+    }
+
+    @GET
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")

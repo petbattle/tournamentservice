@@ -1,13 +1,15 @@
 package com.petbattle.core;
 
+import io.quarkus.infinispan.client.Remote;
 import io.quarkus.mongodb.panache.MongoEntity;
 import io.quarkus.mongodb.panache.PanacheMongoEntityBase;
-import io.quarkus.mongodb.panache.PanacheMongoRepositoryBase;
 import org.bson.codecs.pojo.annotations.BsonId;
 import org.bson.codecs.pojo.annotations.BsonIgnore;
+import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.inject.Inject;
 import java.util.*;
 
 @MongoEntity(collection="Tournaments")
@@ -18,6 +20,10 @@ public class Tournament extends PanacheMongoEntityBase {
         Running
     }
 
+    @Inject
+    @Remote("VotesCache")
+    RemoteCache<String, PetVote> voteCache;
+
     @BsonIgnore
     private final Logger log = LoggerFactory.getLogger(Tournament.class);
 
@@ -26,8 +32,6 @@ public class Tournament extends PanacheMongoEntityBase {
 
     private long tournamentStartTS;
     private long tournamentEndTS;
-
-    private Map<String, PetVote> tournamentPets;
 
     public String getTournamentID() {
         return this.tournamentID;
@@ -45,13 +49,13 @@ public class Tournament extends PanacheMongoEntityBase {
     public Tournament() {
         UUID uuid = UUID.randomUUID();
         this.tournamentID = uuid.toString();
-        this.tournamentPets = new HashMap<>();
         this.tournamentEndTS = 0;
         this.tournamentStartTS = 0;
+        this.voteCache.clear();
     }
 
     public void addPet(String petID) {
-        tournamentPets.putIfAbsent(petID, new PetVote(petID));
+        voteCache.putIfAbsentAsync(petID, new PetVote(petID,0,0));
     }
 
     public boolean isStarted(){
@@ -63,7 +67,7 @@ public class Tournament extends PanacheMongoEntityBase {
     }
 
     public int getPetTally(String petID) {
-        PetVote currPetVote = tournamentPets.get(petID);
+        PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
             return currPetVote.getVoteTally();
         } else {
@@ -72,7 +76,7 @@ public class Tournament extends PanacheMongoEntityBase {
     }
 
     public List<PetVote> getLeaderboard() {
-        List<PetVote> lbList = new ArrayList<>(tournamentPets.values());
+        List<PetVote> lbList = new ArrayList<>(voteCache.values());
         Collections.sort(lbList);
         return lbList;
     }
@@ -89,22 +93,27 @@ public class Tournament extends PanacheMongoEntityBase {
 
     public void upVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
-        PetVote currPetVote = tournamentPets.get(petID);
+        PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
             currPetVote.upVote();
-            tournamentPets.put(petID, currPetVote);
+            voteCache.putAsync(petID, currPetVote);
             log.info("UpVote {}",currPetVote.toString());
         }
     }
 
     public void downVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
-        PetVote currPetVote = tournamentPets.get(petID);
+        PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
             currPetVote.downVote();
-            tournamentPets.put(petID, currPetVote);
+            voteCache.putAsync(petID, currPetVote);
             log.info("DownVote {}",currPetVote.toString());
         }
+    }
+
+    public PetVote getPetVote(String petID) {
+        if (this.tournamentStartTS == 0) return null;
+        return voteCache.get(petID);
     }
 
     @Override
@@ -115,12 +124,12 @@ public class Tournament extends PanacheMongoEntityBase {
             return false;
         }
         Tournament tournament = (Tournament) o;
-        return tournamentID == tournament.tournamentID && tournamentStartTS == tournament.tournamentStartTS && tournamentEndTS == tournament.tournamentEndTS && Objects.equals(tournamentPets, tournament.tournamentPets);
+        return tournamentID == tournament.tournamentID && tournamentStartTS == tournament.tournamentStartTS && tournamentEndTS == tournament.tournamentEndTS;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(tournamentID, tournamentStartTS, tournamentEndTS, tournamentPets);
+        return Objects.hash(tournamentID, tournamentStartTS, tournamentEndTS);
     }
 
     @Override
