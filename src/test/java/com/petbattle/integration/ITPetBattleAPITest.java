@@ -2,6 +2,7 @@ package com.petbattle.integration;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
@@ -13,11 +14,13 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @QuarkusTest
+@DisplayName("API Test Cases")
 public class ITPetBattleAPITest {
 
     @Test
-    @Order(1) 
+    @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
+        System.out.println("Create a tournament");
         Response response = given()
                 .contentType(JSON)
                 .when()
@@ -30,18 +33,17 @@ public class ITPetBattleAPITest {
                 .response();
 
         String TID = response.getBody().jsonPath().getString("TournamentID");
+        System.out.println("Cancel the created tournament");
         given()
                 .contentType(JSON)
                 .when()
                 .delete("/tournament/{tid}/cancel", TID)
                 .then()
                 .statusCode(204);
-
-        System.out.println(TID);
     }
 
     @Test
-    @Order(2)
+    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateStartStopStatusTournamentEndpoints() {
         //Create Tournament
         Response response = given()
@@ -110,9 +112,10 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(3)
+    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateTournamentAddPetsEndpoints() {
-        //Create the tournament
+
+        //Create a tournament
         Response response = given()
                 .contentType(JSON)
                 .when()
@@ -125,29 +128,8 @@ public class ITPetBattleAPITest {
                 .response();
 
         String TID = response.getBody().jsonPath().getString("TournamentID");
-        //Stop the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
 
-        response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
-
-
-
-        TID = response.getBody().jsonPath().getString("TournamentID");
-
+        //Add a pet
         given()
                 .contentType(JSON)
                 .when()
@@ -155,6 +137,7 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Cancle the tournament
         given()
                 .contentType(JSON)
                 .when()
@@ -164,7 +147,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(4)
+    @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
     public void testCreateTournamentStartAddPetsEndpoints() {
         Response response = given()
                 .contentType(JSON)
@@ -179,6 +162,7 @@ public class ITPetBattleAPITest {
 
         String TID = response.getBody().jsonPath().getString("TournamentID");
 
+        //Start the tournament
         given()
                 .contentType(JSON)
                 .when()
@@ -186,6 +170,7 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Get the tournament state
         given()
                 .contentType(JSON)
                 .when()
@@ -202,6 +187,7 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(500);
 
+        //Cancel the tournament
         given()
                 .contentType(JSON)
                 .when()
@@ -314,6 +300,7 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Get the tournament status
         given()
                 .contentType(JSON)
                 .when()
@@ -322,6 +309,7 @@ public class ITPetBattleAPITest {
                 .statusCode(200)
                 .body("State", equalTo("Running"));
 
+        //Upvote pet1
         given()
                 .contentType(JSON)
                 .when()
@@ -329,6 +317,7 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+        //Downvote pet 4
         given()
                 .contentType(JSON)
                 .when()
@@ -336,11 +325,12 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(200);
 
+
         //Get votes for pet
         Response res0 = given()
                 .contentType(JSON)
                 .when()
-                .post("/tournament/votes/4", TID)
+                .get("/tournament/{tid}/votes/4", TID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -378,6 +368,14 @@ public class ITPetBattleAPITest {
 //        JsonPath jp = new JsonPath(json);
 
         //TODO : Add validation
+
+        //Cancel the tournament
+        given()
+                .contentType(JSON)
+                .when()
+                .delete("/tournament/{tid}/cancel", TID)
+                .then()
+                .statusCode(204);
     }
 
     @Test

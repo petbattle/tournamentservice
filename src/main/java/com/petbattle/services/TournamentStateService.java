@@ -14,6 +14,7 @@ import org.infinispan.client.hotrod.RemoteCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @ApplicationScoped
 public class TournamentStateService {
+    private static String ACTIVE_TOURNAMENT_KEY = "PetBattleActiveTournamentKey";
 
     @Inject
     TournamentRepository tournamentRepository;
@@ -29,8 +31,37 @@ public class TournamentStateService {
     @Remote("VotesCache")
     RemoteCache<String, PetVote> voteCache;
 
+    @Inject
+    @Remote("ActiveTournament")
+    RemoteCache<String, String> activeTournament;
+
     private Tournament currentTournament;
     private final Logger log = LoggerFactory.getLogger(TournamentStateService.class);
+
+
+    @PostConstruct
+    public void setup() {
+        String activeTourID = activeTournament.get(ACTIVE_TOURNAMENT_KEY);
+        if ((activeTourID != null)&&(!activeTourID.isEmpty())) {
+            log.info("Existing active tournament found {}",activeTourID);
+            currentTournament = new Tournament(activeTourID);
+        }else{
+            log.info("No existing active tournament found");
+        }
+    }
+
+    @ConsumeEvent("CreateTournament")
+    public Uni<JsonObject> createTournament(String name) {
+        log.info("createTournament");
+        JsonObject res = new JsonObject();
+        if (this.currentTournament == null) {
+            this.currentTournament = new Tournament();
+            res.put("TournamentID", currentTournament.getTournamentID());
+        } else {
+            res.put("TournamentID", this.currentTournament.getTournamentID());
+        }
+        return Uni.createFrom().item(res);
+    }
 
     @ConsumeEvent("StartTournament")
     public Uni<Object> startTournament(String tournamentID) {
@@ -78,20 +109,6 @@ public class TournamentStateService {
             res.put("State", currentTournament.getTournamentState());
             return Uni.createFrom().item(res);
         }
-    }
-
-    @ConsumeEvent("CreateTournament")
-    public Uni<JsonObject> createTournament(String name) {
-        voteCache.put("123123",new PetVote("a",1,1));
-        log.info("createTournament");
-        JsonObject res = new JsonObject();
-        if (this.currentTournament == null) {
-            this.currentTournament = new Tournament();
-            res.put("TournamentID", currentTournament.getTournamentID());
-        } else {
-            res.put("TournamentID", this.currentTournament.getTournamentID());
-        }
-        return Uni.createFrom().item(res);
     }
 
     @ConsumeEvent("CancelCurrentTournament")

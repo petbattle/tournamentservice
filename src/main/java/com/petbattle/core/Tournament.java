@@ -20,9 +20,7 @@ public class Tournament extends PanacheMongoEntityBase {
         Running
     }
 
-    @Inject
-    @Remote("VotesCache")
-    RemoteCache<String, PetVote> voteCache;
+    private Map<String, PetVote> tournamentPets;
 
     @BsonIgnore
     private final Logger log = LoggerFactory.getLogger(Tournament.class);
@@ -51,11 +49,18 @@ public class Tournament extends PanacheMongoEntityBase {
         this.tournamentID = uuid.toString();
         this.tournamentEndTS = 0;
         this.tournamentStartTS = 0;
-        this.voteCache.clear();
+        this.tournamentPets = new HashMap<>();
+    }
+
+    public Tournament(String tournamentID) {
+        this.tournamentID = tournamentID;
+        this.tournamentEndTS = 0;
+        this.tournamentStartTS = 0;
+        this.tournamentPets = new HashMap<>();
     }
 
     public void addPet(String petID) {
-        voteCache.putIfAbsentAsync(petID, new PetVote(petID,0,0));
+        tournamentPets.put(petID, new PetVote(petID,0,0));
     }
 
     public boolean isStarted(){
@@ -66,8 +71,9 @@ public class Tournament extends PanacheMongoEntityBase {
         return (this.tournamentEndTS != 0);
     }
 
+    @BsonIgnore
     public int getPetTally(String petID) {
-        PetVote currPetVote = voteCache.get(petID);
+        PetVote currPetVote = tournamentPets.get(petID);
         if (currPetVote != null) {
             return currPetVote.getVoteTally();
         } else {
@@ -75,8 +81,9 @@ public class Tournament extends PanacheMongoEntityBase {
         }
     }
 
+    @BsonIgnore
     public List<PetVote> getLeaderboard() {
-        List<PetVote> lbList = new ArrayList<>(voteCache.values());
+        List<PetVote> lbList = new ArrayList<>(tournamentPets.values());
         Collections.sort(lbList);
         return lbList;
     }
@@ -93,27 +100,27 @@ public class Tournament extends PanacheMongoEntityBase {
 
     public void upVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
-        PetVote currPetVote = voteCache.get(petID);
+        PetVote currPetVote = tournamentPets.get(petID);
         if (currPetVote != null) {
             currPetVote.upVote();
-            voteCache.putAsync(petID, currPetVote);
+            tournamentPets.put(petID, currPetVote);
             log.info("UpVote {}",currPetVote.toString());
         }
     }
 
     public void downVotePet(String petID) {
         if (this.tournamentStartTS == 0) return;
-        PetVote currPetVote = voteCache.get(petID);
+        PetVote currPetVote = tournamentPets.get(petID);
         if (currPetVote != null) {
             currPetVote.downVote();
-            voteCache.putAsync(petID, currPetVote);
+            tournamentPets.put(petID, currPetVote);
             log.info("DownVote {}",currPetVote.toString());
         }
     }
 
     public PetVote getPetVote(String petID) {
         if (this.tournamentStartTS == 0) return null;
-        return voteCache.get(petID);
+        return tournamentPets.get(petID);
     }
 
     @Override

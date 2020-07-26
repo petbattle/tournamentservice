@@ -1,9 +1,6 @@
 package com.petbattle.services;
 
 
-import com.petbattle.config.ProcessInfinispanAuth;
-import com.petbattle.core.PetVote;
-import io.quarkus.infinispan.client.Remote;
 import io.quarkus.runtime.StartupEvent;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -30,9 +27,14 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ServiceInit {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInit.class.getName());
-    private static final String CACHE_CONFIG_XML =
+    private static final String VOTES_CACHE_CONFIG_XML =
             "<infinispan><cache-container>" +
                     "<replicated-cache name=\"VotesCache\"/>" +
+                    "</cache-container></infinispan>";
+
+    private static final String ACTIVETOUR_CACHE_CONFIG_XML =
+            "<infinispan><cache-container>" +
+                    "<replicated-cache name=\"ActiveTournament\"/>" +
                     "</cache-container></infinispan>";
     @Inject
     RemoteCacheManager cacheManager;
@@ -44,12 +46,16 @@ public class ServiceInit {
      * Listens startup event to load the data
      */
     void onStart(@Observes @Priority(value = 1) StartupEvent ev) {
-        String CacheName = "VotesCache";
-        LOGGER.info("Creating Tournament Cache {}",CacheName);
+        LOGGER.info("Creating Caches VotesCache & ActiveTournament");
 
 //        ProcessInfinispanAuth authProc = new ProcessInfinispanAuth(CacheName);
-        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(CACHE_CONFIG_XML));
+        //TODO : Need to add auth pulled from secret
+        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
+        RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament", new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
+
+        //TODO : Remove EventListeners
         x.addClientListener(new EventPrintListener());
+        y.addClientListener(new EventPrintListener());
     }
 
 

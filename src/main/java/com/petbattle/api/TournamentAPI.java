@@ -149,11 +149,12 @@ public class TournamentAPI {
     }
 
     @GET
-    @Path("/votes/{petId}")
-    public Uni<Response> getVotesForPetInTournament( @PathParam("petId") String petID) {
+    @Path("{id}/votes/{petId}")
+    public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
         params.put("petId", petID);
+        params.put("tournamentId", tournamentID);
         return bus.<JsonObject>request("GetPetVote", params)
                 .onItem().apply(b -> Response.ok(b.body()).build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
