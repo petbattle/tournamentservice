@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
 import com.petbattle.repository.TournamentRepository;
+import com.petbattle.repository.TournamentTemporalRepository;
 import io.quarkus.infinispan.client.Remote;
 import io.quarkus.vertx.ConsumeEvent;
 import io.smallrye.mutiny.Uni;
@@ -19,17 +20,17 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class TournamentStateService {
-    private static String ACTIVE_TOURNAMENT_KEY = "PetBattleActiveTournamentKey";
+    private static final String ACTIVE_TOURNAMENT_KEY = "PetBattleActiveTournamentKey";
 
     @Inject
     TournamentRepository tournamentRepository;
 
     @Inject
-    @Remote("VotesCache")
-    RemoteCache<String, PetVote> voteCache;
+    TournamentTemporalRepository TourTemporalStore;
 
     @Inject
     @Remote("ActiveTournament")
@@ -38,12 +39,11 @@ public class TournamentStateService {
     private Tournament currentTournament;
     private final Logger log = LoggerFactory.getLogger(TournamentStateService.class);
 
-
     @PostConstruct
     public void setup() {
         String activeTourID = activeTournament.get(ACTIVE_TOURNAMENT_KEY);
         if ((activeTourID != null)&&(!activeTourID.isEmpty())) {
-            log.info("Existing active tournament found {}",activeTourID);
+            log.info("Existing active tournament found {}...recovering",activeTourID);
             currentTournament = new Tournament(activeTourID);
         }else{
             log.info("No existing active tournament found");
@@ -56,8 +56,12 @@ public class TournamentStateService {
         JsonObject res = new JsonObject();
         if (this.currentTournament == null) {
             this.currentTournament = new Tournament();
+            log.info("Tournament Created {}",currentTournament);
+            activeTournament.putAsync(ACTIVE_TOURNAMENT_KEY,currentTournament.getTournamentID(),1, TimeUnit.DAYS);
+            TourTemporalStore.clearRepo();
             res.put("TournamentID", currentTournament.getTournamentID());
         } else {
+            log.warn("Tournament already created {}",currentTournament);
             res.put("TournamentID", this.currentTournament.getTournamentID());
         }
         return Uni.createFrom().item(res);
@@ -89,6 +93,8 @@ public class TournamentStateService {
         } else {
             if (this.currentTournament.isStarted()) {
                 currentTournament.StopTournament();
+                //Copy from cache to repo and persist
+
                 tournamentRepository.persist(currentTournament);
             }
         }
@@ -98,7 +104,6 @@ public class TournamentStateService {
 
     @ConsumeEvent("GetTournamentStatus")
     public Uni<JsonObject> statusTournament(String tournamentID) {
-        log.info("statusTournament {}", tournamentID);
         if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
         if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
@@ -106,7 +111,8 @@ public class TournamentStateService {
             return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
         } else {
             JsonObject res = new JsonObject();
-            res.put("State", currentTournament.getTournamentState());
+            res.put("State", this.currentTournament.getTournamentState());
+            log.info("statusTournament {} is {}", tournamentID,this.currentTournament.getTournamentState());
             return Uni.createFrom().item(res);
         }
     }
@@ -124,10 +130,11 @@ public class TournamentStateService {
 
         if (this.currentTournament == null) {
             Tournament oldTournament = tournamentRepository.findById(new ObjectId(tournamentID));
-            res = oldTournament.getLeaderboard();
+            //TODO : Read form DB
+//            res = oldTournament.getLeaderboard();
         } else {
             if (tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
-                res = this.currentTournament.getLeaderboard();
+                res = TourTemporalStore.getLeaderboard();
             }
         }
 
@@ -153,7 +160,9 @@ public class TournamentStateService {
             log.warn("Tournament started, addPetToTournament {}:{} not allowed", tourID, petID);
             return Uni.createFrom().failure(new Exception("TournamentId already active unable to add pet"));
         }
+        TourTemporalStore.addPet(petID);
         currentTournament.addPet(petID);
+
         return Uni.createFrom().item(new Object());
     }
 
@@ -172,9 +181,9 @@ public class TournamentStateService {
             return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
         }
         if (direction.equalsIgnoreCase("up"))
-            this.currentTournament.upVotePet(petID);
+            TourTemporalStore.upVotePet(petID);
         else
-            this.currentTournament.downVotePet(petID);
+            TourTemporalStore.downVotePet(petID);
 
         return Uni.createFrom().item(new Object());
     }
@@ -184,6 +193,6 @@ public class TournamentStateService {
         String petID = params.getString("petId");
         if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
         log.info("getVoteForPetInTournament {}", petID);
-        return Uni.createFrom().item(this.currentTournament.getPetVote(petID));
+        return Uni.createFrom().item(TourTemporalStore.getPetVote(petID));
     }
 }

@@ -100,6 +100,10 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-container-image-s2i</artifactId>
         </dependency>
         <dependency>
@@ -213,18 +217,18 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${surefire-plugin.version}</version>
-                        <configuration>
-                            <properties>
-                            <configurationParameters>
-                                junit.jupiter.execution.parallel.enabled = false
-                            </configurationParameters>
-                            </properties>
-                            <consoleOutputReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">
-                                <disable>false</disable>
-                                <encoding>UTF-8</encoding>
-                                <usePhrasedFileName>true</usePhrasedFileName>
-                            </consoleOutputReporter>
-                        </configuration>
+<!--                        <configuration>-->
+<!--                            <properties>-->
+<!--                            <configurationParameters>-->
+<!--                                junit.jupiter.execution.parallel.enabled = false-->
+<!--                            </configurationParameters>-->
+<!--                            </properties>-->
+<!--                            <consoleOutputReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5ConsoleOutputReporter">-->
+<!--                                <disable>false</disable>-->
+<!--                                <encoding>UTF-8</encoding>-->
+<!--                                <usePhrasedFileName>true</usePhrasedFileName>-->
+<!--                            </consoleOutputReporter>-->
+<!--                        </configuration>-->
                         <executions>
                             <execution>
                                 <goals>

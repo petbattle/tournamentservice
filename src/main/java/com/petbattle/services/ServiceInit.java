@@ -50,12 +50,13 @@ public class ServiceInit {
 
 //        ProcessInfinispanAuth authProc = new ProcessInfinispanAuth(CacheName);
         //TODO : Need to add auth pulled from secret
-        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
-        RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament", new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
 
-        //TODO : Remove EventListeners
-        x.addClientListener(new EventPrintListener());
-        y.addClientListener(new EventPrintListener());
+        RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament", new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
+        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
+
+//        //TODO : Remove EventListeners
+//        x.addClientListener(new EventPrintListener());
+//        y.addClientListener(new EventPrintListener());
     }
 
 

@@ -1,10 +1,16 @@
 package com.petbattle.integration;
 
+import com.petbattle.containers.InfinispanTestContainer;
+import com.petbattle.containers.MongoTestContainer;
+import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
@@ -15,25 +21,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 @QuarkusTest
 @DisplayName("API Test Cases")
+@QuarkusTestResource(MongoTestContainer.class)
+@QuarkusTestResource(InfinispanTestContainer.class)
 public class ITPetBattleAPITest {
 
-    @Test
-    @DisplayName("Test Creation of a tournament and then cancel it")
-    public void testNewTournamentEndpoint() {
-        System.out.println("Create a tournament");
-        Response response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
-
-        String TID = response.getBody().jsonPath().getString("TournamentID");
-        System.out.println("Cancel the created tournament");
+    private void CallCancelTournament(String TID) {
         given()
                 .contentType(JSON)
                 .when()
@@ -42,11 +34,8 @@ public class ITPetBattleAPITest {
                 .statusCode(204);
     }
 
-    @Test
-    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
-    public void testCreateStartStopStatusTournamentEndpoints() {
-        //Create Tournament
-        Response response = given()
+    private String CallCreateTournament() {
+        Response x =  given()
                 .contentType(JSON)
                 .when()
                 .post("/tournament")
@@ -57,160 +46,107 @@ public class ITPetBattleAPITest {
                 .extract()
                 .response();
 
-        String TID = response.getBody().jsonPath().getString("TournamentID");
+        return  x.getBody().jsonPath().getString("TournamentID");
+    }
 
-        //Get Tournament state
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo("NotStarted"));
-
-        //Start the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .put("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
-
-        //Get Tournament state
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo("Running"));
-
-        //Stop the tournament
+    private void CallStopTournament(String TID) {
         given()
                 .contentType(JSON)
                 .when()
                 .delete("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200);
-
-        //Get Tournament state
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo("Finished"));
-
-        //Cancel the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
     }
 
-    @Test
-    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
-    public void testCreateTournamentAddPetsEndpoints() {
-
-        //Create a tournament
-        Response response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
-
-        String TID = response.getBody().jsonPath().getString("TournamentID");
-
-        //Add a pet
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/12345", TID)
-                .then()
-                .statusCode(200);
-
-        //Cancle the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
-    }
-
-    @Test
-    @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
-    public void testCreateTournamentStartAddPetsEndpoints() {
-        Response response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
-
-        String TID = response.getBody().jsonPath().getString("TournamentID");
-
-        //Start the tournament
+    private void CallStartTournament(String TID) {
         given()
                 .contentType(JSON)
                 .when()
                 .put("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200);
+    }
 
-        //Get the tournament state
+    private void CallGetTournamentState(String TID, String finished) {
         given()
                 .contentType(JSON)
                 .when()
                 .get("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200)
-                .body("State", equalTo("Running"));
-
-        //We shouldn't be able to add a pet to a running tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/12345", TID)
-                .then()
-                .statusCode(500);
-
-        //Cancel the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
+                .body("State", equalTo(finished));
     }
 
-    @Test
-    @Order(5)
-    public void testCreateStatusStartInvalidTournamentId() {
-        Response response = given()
+    private void CallAddPet(String TID, String PID, int i) {
+        given()
                 .contentType(JSON)
                 .when()
-                .post("/tournament")
+                .post("/tournament/{tid}/add/{pid}", TID,PID)
+                .then()
+                .statusCode(i);
+    }
+
+    private void CallVote4Pet(String TID, String PID, String DIR,int i) {
+        given()
+                .contentType(JSON)
+                .when()
+                .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID,PID,DIR)
+                .then()
+                .statusCode(i);
+    }
+
+
+    private Response CallGetLeaderBoard(String TID) {
+        return get("/tournament/{tid}/leaderboard", TID)
                 .then()
                 .statusCode(200)
                 .contentType(JSON)
-                .body(notNullValue())
                 .extract()
                 .response();
+    }
 
-        String TID = response.getBody().jsonPath().getString("TournamentID");
+    @Test
+    @DisplayName("Test Creation of a tournament and then cancel it")
+    public void testNewTournamentEndpoint() {
+        String TID =  CallCreateTournament();
+        CallCancelTournament(TID);
+    }
+
+    @Test
+    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
+    public void testCreateStartStopStatusTournamentEndpoints() {
+        String TID = CallCreateTournament();
+        CallGetTournamentState(TID, "NotStarted");
+        CallStartTournament(TID);
+        CallGetTournamentState(TID, "Running");
+        CallStopTournament(TID);
+        CallGetTournamentState(TID, "Finished");
+        CallCancelTournament(TID);
+    }
+
+
+    @Test
+    @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
+    public void testCreateTournamentAddPetsEndpoints() {
+        String TID =  CallCreateTournament();
+        CallAddPet(TID, "12345", 200);
+        CallCancelTournament(TID);
+    }
+
+    @Test
+    @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
+    public void testCreateTournamentStartAddPetsEndpoints() {
+        String TID =  CallCreateTournament();
+        CallStartTournament(TID);
+        CallGetTournamentState(TID, "Running");
+        //We shouldn't be able to add a pet to a running tournament
+        CallAddPet(TID, "12345", 500);
+        CallCancelTournament(TID);
+    }
+
+    @Test
+    public void testCreateStatusStartInvalidTournamentId() {
+        String TID =  CallCreateTournament();
 
         given()
                 .contentType(JSON)
@@ -233,220 +169,105 @@ public class ITPetBattleAPITest {
                 .then()
                 .statusCode(500);
 
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/12345", "INVALIDTESTID")
-                .then()
-                .statusCode(500);
-
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
+        CallAddPet("INVALIDTESTID", "12345", 500);
+        CallCancelTournament(TID);
     }
 
     @Test
-    @Order(6)
     public void testCreateTournamentStartAddPetsVoteEndpoints() {
-        Response response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
+        String TID =  CallCreateTournament();
+        CallAddPet(TID, "1", 200);
+        CallAddPet(TID, "2", 200);
+        CallAddPet(TID, "3", 200);
+        CallAddPet(TID, "4", 200);
+        CallStartTournament(TID);
+        CallGetTournamentState(TID, "Running");
+        CallVote4Pet(TID,"1","up", 200);
+        CallVote4Pet(TID, "4","down", 200);
 
-        String TID = response.getBody().jsonPath().getString("TournamentID");
-
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/1", TID)
-                .then()
-                .statusCode(200);
-
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/2", TID)
-                .then()
-                .statusCode(200);
-
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/3", TID)
-                .then()
-                .statusCode(200);
-
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/4", TID)
-                .then()
-                .statusCode(200);
-
-        //Start the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .put("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
-
-        //Get the tournament status
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo("Running"));
-
-        //Upvote pet1
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/1?dir=up", TID)
-                .then()
-                .statusCode(200);
-
-        //Downvote pet 4
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/4?dir=down", TID)
-                .then()
-                .statusCode(200);
-
-
-        //Get votes for pet
-        Response res0 = given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}/votes/4", TID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .response();
-
-        System.out.println("BOOMMMMMMMM---->"+res0.asString());
-
-        Response res = get("/tournament/{tid}/leaderboard", TID)
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .extract()
-                .response();
+        Response res = CallGetLeaderBoard(TID);
 
         //Stop the test
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
+        CallStopTournament(TID);
 
-        Response res2 = get("/tournament/{tid}/leaderboard", TID)
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .extract()
-                .response();
+        Response res2 = CallGetLeaderBoard(TID);
 
         String json1 = res.asString();
         String json2 = res2.asString();
 
         assertThat(json1,equalTo(json2));
 
-//        JsonPath jp = new JsonPath(json);
-
-        //TODO : Add validation
-
         //Cancel the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
+        CallCancelTournament(TID);
     }
 
     @Test
-    @Order(6)
     public void testValidateVoteEndpoint() {
-        Response response = given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
+        String TID =  CallCreateTournament();
+        CallAddPet(TID, "1", 200);
+        CallStartTournament(TID);
+        CallGetTournamentState(TID, "Running");
+        CallVote4Pet(TID, "1", "",400);
+        CallVote4Pet(TID, "1","fail", 400);
+        CallVote4Pet(TID, "1","up", 200);
+        CallCancelTournament(TID);
+    }
 
-        String TID = response.getBody().jsonPath().getString("TournamentID");
+    @Test
+    public void testLeaderboardEndpoints() {
+        String TID =  CallCreateTournament();
+        CallAddPet(TID, "1", 200);
+        CallAddPet(TID, "2", 200);
+        CallAddPet(TID, "3", 200);
+        CallAddPet(TID, "4", 200);
+        CallStartTournament(TID);
+        CallGetTournamentState(TID, "Running");
+        CallVote4Pet(TID,"1","up", 200);
+        CallVote4Pet(TID,"4","up", 200);
+        CallVote4Pet(TID,"4","up", 200);
+        CallVote4Pet(TID,"4","up", 200);
+        CallVote4Pet(TID,"2","up", 200);
+        CallVote4Pet(TID,"2","up", 200);
+        CallVote4Pet(TID,"4","up", 200);
+        CallVote4Pet(TID,"3","up", 200);
+        CallVote4Pet(TID,"3","up", 200);
+        CallVote4Pet(TID,"3","up", 200);
 
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/1", TID)
-                .then()
-                .statusCode(200);
+        Response res1 = CallGetLeaderBoard(TID);
 
-        //Start the tournament
-        given()
-                .contentType(JSON)
-                .when()
-                .put("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
+        List<String> vote1 = res1.jsonPath()
+                .getList("petId");
 
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo("Running"));
-
-        //Missing vote direction
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/1", TID)
-                .then()
-                .statusCode(400);
+        assertThat("Pet 4 should be highest rated",vote1.get(0).equals("4"));
+        assertThat("Pet 3 should be next rated",vote1.get(1).equals("3"));
+        assertThat("Pet 2 should be next rated",vote1.get(2).equals("2"));
+        assertThat("Pet 1 should be next rated",vote1.get(3).equals("1"));
 
 
-        //Invalid vote direction
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/1?dir=fail", TID)
-                .then()
-                .statusCode(400);
+        CallVote4Pet(TID,"1","up", 200);
+        CallVote4Pet(TID,"4","down", 200);
+        CallVote4Pet(TID,"4","down", 200);
+        CallVote4Pet(TID,"4","down", 200);
+        CallVote4Pet(TID,"2","up", 200);
+        CallVote4Pet(TID,"2","up", 200);
+        CallVote4Pet(TID,"3","down", 200);
+        CallVote4Pet(TID,"3","up", 200);
+        CallVote4Pet(TID,"3","up", 200);
+        CallVote4Pet(TID,"3","up", 200);
 
-        //Correct voting
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/1?dir=up", TID)
-                .then()
-                .statusCode(200);
+        Response res2 = CallGetLeaderBoard(TID);
 
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
+        List<String> vote2 = res2.jsonPath()
+                .getList("petId");
+
+        System.out.println(res2.getBody().prettyPrint());
+
+        assertThat("Pet 3 should be highest rated",vote2.get(0).equals("3"));
+        assertThat("Pet 2 should be next rated",vote2.get(1).equals("2"));
+        assertThat("Pet 1 should be next rated",vote2.get(2).equals("1"));
+        assertThat("Pet 4 should be next rated",vote2.get(3).equals("4"));
+
+        //Cancel the tournament
+        CallCancelTournament(TID);
     }
 }
