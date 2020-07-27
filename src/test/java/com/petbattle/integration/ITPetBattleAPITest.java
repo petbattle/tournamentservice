@@ -4,19 +4,16 @@ import com.petbattle.containers.InfinispanTestContainer;
 import com.petbattle.containers.MongoTestContainer;
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static io.restassured.RestAssured.get;
+import static com.petbattle.integration.APIMethods.*;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @QuarkusTest
@@ -25,90 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @QuarkusTestResource(InfinispanTestContainer.class)
 public class ITPetBattleAPITest {
 
-    private void CallCancelTournament(String TID) {
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}/cancel", TID)
-                .then()
-                .statusCode(204);
-    }
-
-    private String CallCreateTournament() {
-        Response x =  given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament")
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .body(notNullValue())
-                .extract()
-                .response();
-
-        return  x.getBody().jsonPath().getString("TournamentID");
-    }
-
-    private void CallStopTournament(String TID) {
-        given()
-                .contentType(JSON)
-                .when()
-                .delete("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
-    }
-
-    private void CallStartTournament(String TID) {
-        given()
-                .contentType(JSON)
-                .when()
-                .put("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200);
-    }
-
-    private void CallGetTournamentState(String TID, String finished) {
-        given()
-                .contentType(JSON)
-                .when()
-                .get("/tournament/{tid}", TID)
-                .then()
-                .statusCode(200)
-                .body("State", equalTo(finished));
-    }
-
-    private void CallAddPet(String TID, String PID, int i) {
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/add/{pid}", TID,PID)
-                .then()
-                .statusCode(i);
-    }
-
-    private void CallVote4Pet(String TID, String PID, String DIR,int i) {
-        given()
-                .contentType(JSON)
-                .when()
-                .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID,PID,DIR)
-                .then()
-                .statusCode(i);
-    }
-
-
-    private Response CallGetLeaderBoard(String TID) {
-        return get("/tournament/{tid}/leaderboard", TID)
-                .then()
-                .statusCode(200)
-                .contentType(JSON)
-                .extract()
-                .response();
-    }
-
     @Test
     @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
-        String TID =  CallCreateTournament();
+        String TID = CallCreateTournament();
         CallCancelTournament(TID);
     }
 
