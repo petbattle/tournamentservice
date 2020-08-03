@@ -1,0 +1,10 @@
+apiVersion: keycloak.org/v1alpha1
+kind: Keycloak
+metadata:
+  name: pbkeycloak
+  labels:
+    app: pbkeycloak
+spec:
+  instances: 1
+  externalAccess:
+    enabled: True

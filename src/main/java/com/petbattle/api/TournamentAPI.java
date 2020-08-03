@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
+import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
@@ -18,6 +19,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -50,6 +52,9 @@ public class TournamentAPI {
     private CollectionType javaType;
 
     @Inject
+    SecurityIdentity securityIdentity;
+
+    @Inject
     Template leaderboard;
 
     @Inject
@@ -62,6 +67,7 @@ public class TournamentAPI {
     }
 
     @POST
+    @RolesAllowed("admin")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -100,6 +106,7 @@ public class TournamentAPI {
 
     @PUT
     @Path("{id}")
+    @RolesAllowed("admin")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
@@ -108,6 +115,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}")
+    @RolesAllowed("admin")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
@@ -116,6 +124,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}/cancel")
+    @RolesAllowed("admin")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         bus.sendAndForget("CancelCurrentTournament", tournamentID);

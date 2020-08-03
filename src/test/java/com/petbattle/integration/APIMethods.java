@@ -10,8 +10,12 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 
 public class APIMethods {
 
-    public static void CallCancelTournament(String TID) {
+    public static void CallCancelTournament(String accessToken,String TID) {
+
         given()
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .contentType(JSON)
                 .when()
                 .delete("/tournament/{tid}/cancel", TID)
@@ -19,9 +23,12 @@ public class APIMethods {
                 .statusCode(204);
     }
 
-    public static String CallCreateTournament() {
+    public static String CallCreateTournament(String accessToken) {
         Response x =  given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .post("/tournament")
                 .then()
@@ -34,9 +41,12 @@ public class APIMethods {
         return  x.getBody().jsonPath().getString("TournamentID");
     }
 
-    public static void CallStopTournament(String TID) {
+    public static void CallStopTournament(String accessToken,String TID) {
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .delete("/tournament/{tid}", TID)
                 .then()
