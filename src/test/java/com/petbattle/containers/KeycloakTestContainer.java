@@ -15,7 +15,6 @@ import org.keycloak.representations.idm.UserRepresentation;
 
 import javax.ws.rs.core.Response;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,8 +33,9 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
                 .password(SSO.getAdminPassword())
                 .build();
 
-        addAdmin(keycloakAdminClient);
+
         addPlayer(keycloakAdminClient);
+        addAdmin(keycloakAdminClient);
 
         RealmResource realmResource = keycloakAdminClient.realm("pbrealm");
         ClientRepresentation app1Client = realmResource.clients().findByClientId("pbclient").get(0);
@@ -43,6 +43,7 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         String sec = realmResource.clients().get(app1Client.getId()).getSecret().getValue();
 
         res.put("quarkus.oidc.auth-server-url", SSO.getAuthServerUrl() + "/realms/pbrealm");
+        res.put("quarkus.oidc.credentials.secret",sec);
         res.put("quarkus.pbclient.test.secret",sec);
         return res;
     }
@@ -82,9 +83,9 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         // Define pbPlayer
         UserRepresentation pbAdmin = new UserRepresentation();
         pbAdmin.setEnabled(true);
-        pbAdmin.setUsername("admin");
-        pbAdmin.setFirstName("admin");
-        pbAdmin.setLastName("admin");
+        pbAdmin.setUsername("pbadmin");
+        pbAdmin.setFirstName("pbadmin");
+        pbAdmin.setLastName("pbadmin");
         pbAdmin.setEmail("pbAdmin@petbattle.com");
         // Get realm
         RealmResource realmResource = keycloakAdminClient.realm("pbrealm");
@@ -96,7 +97,7 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         CredentialRepresentation passwordCred = new CredentialRepresentation();
         passwordCred.setTemporary(false);
         passwordCred.setType(CredentialRepresentation.PASSWORD);
-        passwordCred.setValue("adminpwd");
+        passwordCred.setValue("pbadminpwd");
         userResource.resetPassword(passwordCred);
 
         ClientRepresentation app1Client = realmResource.clients().findByClientId("pbclient").get(0);

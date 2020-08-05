@@ -67,7 +67,7 @@ public class TournamentAPI {
     }
 
     @POST
-    @RolesAllowed("admin")
+    @RolesAllowed("pbadmin")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -76,6 +76,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}")
+    @RolesAllowed("pbplayer")
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
 
@@ -87,6 +88,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
+    @RolesAllowed("pbplayer")
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
@@ -106,7 +108,7 @@ public class TournamentAPI {
 
     @PUT
     @Path("{id}")
-    @RolesAllowed("admin")
+    @RolesAllowed("pbadmin")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
@@ -115,7 +117,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}")
-    @RolesAllowed("admin")
+    @RolesAllowed("pbadmin")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
@@ -124,7 +126,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}/cancel")
-    @RolesAllowed("admin")
+    @RolesAllowed("pbadmin")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         bus.sendAndForget("CancelCurrentTournament", tournamentID);
@@ -132,6 +134,7 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/add/{petId}")
+    @RolesAllowed("pbadmin")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
@@ -143,6 +146,7 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/vote/{petId}")
+    @RolesAllowed("pbplayer")
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
@@ -159,6 +163,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/votes/{petId}")
+    @RolesAllowed("pbplayer")
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
@@ -173,6 +178,7 @@ public class TournamentAPI {
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
+    @RolesAllowed("pbplayer")
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
         return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());
     }

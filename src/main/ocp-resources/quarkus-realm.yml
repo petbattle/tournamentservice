@@ -53,9 +53,25 @@
         "attributes": {}
       },
       {
+        "id": "86642b24-a488-4119-8229-2f4708c41990",
+        "name": "pbadmin",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "",
+        "attributes": {}
+      },
+      {
         "id": "2bd90cf7-6267-4198-8f1c-5f28b7f17dbd",
         "name": "offline_access",
         "description": "${role_offline-access}",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "",
+        "attributes": {}
+      },
+      {
+        "id": "df13a448-3d3b-43b8-849b-c582bd8bea57",
+        "name": "pbplayer",
         "composite": false,
         "clientRole": false,
         "containerId": "",
@@ -277,24 +293,8 @@
       ],
       "pbclient": [
         {
-          "id": "339b3b51-33c1-442e-aaa1-396d422751f9",
-          "name": "pbadmin",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0ac5df91-e044-4051-bd03-106a3a5fb9cc",
-          "attributes": {}
-        },
-        {
           "id": "0a2ccb9b-7346-497b-bc82-7d321e293fb4",
           "name": "uma_protection",
-          "composite": false,
-          "clientRole": true,
-          "containerId": "0ac5df91-e044-4051-bd03-106a3a5fb9cc",
-          "attributes": {}
-        },
-        {
-          "id": "4f219a9f-ab7e-47cd-90c2-b2f89a3aea74",
-          "name": "pbplayer",
           "composite": false,
           "clientRole": true,
           "containerId": "0ac5df91-e044-4051-bd03-106a3a5fb9cc",
@@ -442,13 +442,13 @@
       "requiredActions": [],
       "realmRoles": [
         "uma_authorization",
-        "offline_access"
+        "pbadmin",
+        "offline_access",
+        "pbplayer"
       ],
       "clientRoles": {
         "pbclient": [
-          "pbadmin",
-          "uma_protection",
-          "pbplayer"
+          "uma_protection"
         ],
         "account": [
           "view-profile",
@@ -665,7 +665,7 @@
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "testsecret",
+      "secret": "**********",
       "redirectUris": [],
       "webOrigins": [],
       "notBefore": 0,
@@ -778,6 +778,28 @@
         ],
         "policies": [
           {
+            "id": "fcef30b2-68b2-4b78-9f3d-9162c6cdf5cb",
+            "name": "Only Administrators",
+            "description": "Only administrators can access",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"pbadmin\",\"required\":false}]"
+            }
+          },
+          {
+            "id": "b8710fa6-160e-4de0-adf3-398c7007a0af",
+            "name": "Any User Policy",
+            "description": "Any user granted with the user role can access something",
+            "type": "role",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "roles": "[{\"id\":\"pbplayer\",\"required\":false}]"
+            }
+          },
+          {
             "id": "fc241f67-5760-4a2b-b5a5-d381e3801182",
             "name": "Default Policy",
             "description": "A policy that grants access only for users within this realm",
@@ -786,6 +808,28 @@
             "decisionStrategy": "AFFIRMATIVE",
             "config": {
               "code": "// by default, grants any permission associated with this policy\n$evaluation.grant();\n"
+            }
+          },
+          {
+            "id": "60188298-d55b-4066-b231-6a7c56ff7cc5",
+            "name": "Administration Resource Permission",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "resources": "[\"Administration Resource\"]",
+              "applyPolicies": "[\"Only Administrators\"]"
+            }
+          },
+          {
+            "id": "3479dd56-02e9-4222-94fe-6a13cd065195",
+            "name": "User Resource Permission",
+            "type": "resource",
+            "logic": "POSITIVE",
+            "decisionStrategy": "UNANIMOUS",
+            "config": {
+              "resources": "[\"User Resource\"]",
+              "applyPolicies": "[\"Any User Policy\"]"
             }
           },
           {
