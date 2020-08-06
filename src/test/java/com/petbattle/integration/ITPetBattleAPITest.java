@@ -3,13 +3,11 @@ package com.petbattle.integration;
 import com.petbattle.containers.InfinispanTestContainer;
 import com.petbattle.containers.KeycloakTestContainer;
 import com.petbattle.containers.MongoTestContainer;
-
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,6 +28,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @QuarkusTestResource(InfinispanTestContainer.class)
 @QuarkusTestResource(KeycloakTestContainer.class)
 public class ITPetBattleAPITest {
+    final String playerPayload = "username=player1&password=player1pwd&grant_type=password";
+    final String adminPayload = "username=pbadmin&password=pbadminpwd&grant_type=password";
 
     @ConfigProperty(name="quarkus.pbclient.test.secret")
     String clientSecret;
@@ -37,21 +37,21 @@ public class ITPetBattleAPITest {
     @ConfigProperty(name="quarkus.oidc.auth-server-url")
     String keycloakHost;
 
-    private String adminToken;
-    private String playerToken;
+    private String adminToken="";
+    private String playerToken="";
 
     @BeforeEach
     private void init(){
-        String payload = "username=player1&password=player1pwd&grant_type=password";
+        if (!adminToken.isEmpty()) return;
 
-        Response x =  given()
-                .log().all()
+        String userResp =  given()
+//                .log().all()
                 .contentType(URLENC)
                 .auth()
                 .preemptive()
                 .basic("pbclient",clientSecret)
                 .when()
-                .body(payload)
+                .body(playerPayload)
                 .post(keycloakHost+"/protocol/openid-connect/token")
                 .then()
                 .log().all()
@@ -59,27 +59,46 @@ public class ITPetBattleAPITest {
                 .contentType(JSON)
                 .body(notNullValue())
                 .extract()
-                .response();
+                .response().getBody().asString();
 
-        System.out.println(x.getBody().prettyPrint());
+        this.playerToken = new JsonPath(userResp).get("access_token");
+
+        String adminResp =  given()
+                .contentType(URLENC)
+                .auth()
+                .preemptive()
+                .basic("pbclient",clientSecret)
+                .when()
+                .body(adminPayload)
+                .post(keycloakHost+"/protocol/openid-connect/token")
+                .then()
+                .statusCode(200)
+                .contentType(JSON)
+                .body(notNullValue())
+                .extract()
+                .response().getBody().asString();
+
+        this.adminToken = new JsonPath(adminResp).get("access_token");
+
+        System.out.println("Configuration =>"+this.toString());
     }
 
     @Test
     @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
-        String TID = CallCreateTournament(adminToken);
-        CallCancelTournament(adminToken,TID);
+        String TID = CallCreateTournament(this.adminToken);
+        CallCancelTournament(this.adminToken,TID);
     }
 
     @Test
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateStartStopStatusTournamentEndpoints() {
-        String TID = CallCreateTournament(adminToken);
-        CallGetTournamentState(TID, "NotStarted");
-        CallStartTournament(TID);
-        CallGetTournamentState(TID, "Running");
+        String TID = CallCreateTournament(this.adminToken);
+        CallGetTournamentState(this.playerToken,TID, "NotStarted");
+        CallStartTournament(this.adminToken,TID);
+        CallGetTournamentState(this.playerToken,TID, "Running");
         CallStopTournament(adminToken,TID);
-        CallGetTournamentState(TID, "Finished");
+        CallGetTournamentState(this.playerToken,TID, "Finished");
         CallCancelTournament(adminToken,TID);
     }
 
@@ -87,19 +106,19 @@ public class ITPetBattleAPITest {
     @Test
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateTournamentAddPetsEndpoints() {
-        String TID =  CallCreateTournament(adminToken);
-        CallAddPet(TID, "12345", 200);
+        String TID =  CallCreateTournament(this.adminToken);
+        CallAddPet(this.adminToken,TID, "12345", 200);
         CallCancelTournament(adminToken,TID);
     }
 
     @Test
     @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
     public void testCreateTournamentStartAddPetsEndpoints() {
-        String TID =  CallCreateTournament(adminToken);
-        CallStartTournament(TID);
-        CallGetTournamentState(TID, "Running");
+        String TID =  CallCreateTournament(this.adminToken);
+        CallStartTournament(this.adminToken,TID);
+        CallGetTournamentState(this.playerToken,TID, "Running");
         //We shouldn't be able to add a pet to a running tournament
-        CallAddPet(TID, "12345", 500);
+        CallAddPet(this.adminToken,TID, "12345", 500);
         CallCancelTournament(adminToken,TID);
     }
 
@@ -109,6 +128,9 @@ public class ITPetBattleAPITest {
 
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(this.playerToken)
                 .when()
                 .get("/tournament/{tid}", "INVALIDTESTID")
                 .then()
@@ -116,6 +138,9 @@ public class ITPetBattleAPITest {
 
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(this.adminToken)
                 .when()
                 .put("/tournament/{tid}", "INVALIDTESTID")
                 .then()
@@ -123,33 +148,36 @@ public class ITPetBattleAPITest {
 
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(this.adminToken)
                 .when()
                 .delete("/tournament/{tid}", "INVALIDTESTID")
                 .then()
                 .statusCode(500);
 
-        CallAddPet("INVALIDTESTID", "12345", 500);
+        CallAddPet(this.adminToken,"INVALIDTESTID", "12345", 500);
         CallCancelTournament(adminToken,TID);
     }
 
     @Test
     public void testCreateTournamentStartAddPetsVoteEndpoints() {
         String TID =  CallCreateTournament(adminToken);
-        CallAddPet(TID, "1", 200);
-        CallAddPet(TID, "2", 200);
-        CallAddPet(TID, "3", 200);
-        CallAddPet(TID, "4", 200);
-        CallStartTournament(TID);
-        CallGetTournamentState(TID, "Running");
-        CallVote4Pet(TID,"1","up", 200);
-        CallVote4Pet(TID, "4","down", 200);
+        CallAddPet(this.adminToken,TID, "1", 200);
+        CallAddPet(this.adminToken,TID, "2", 200);
+        CallAddPet(this.adminToken,TID, "3", 200);
+        CallAddPet(this.adminToken,TID, "4", 200);
+        CallStartTournament(this.adminToken,TID);
+        CallGetTournamentState(this.playerToken,TID, "Running");
+        CallVote4Pet(this.playerToken,TID,"1","up", 200);
+        CallVote4Pet(this.playerToken,TID, "4","down", 200);
 
-        Response res = CallGetLeaderBoard(TID);
+        Response res = CallGetLeaderBoard(this.playerToken,TID);
 
         //Stop the test
         CallStopTournament(adminToken,TID);
 
-        Response res2 = CallGetLeaderBoard(TID);
+        Response res2 = CallGetLeaderBoard(this.playerToken,TID);
 
         String json1 = res.asString();
         String json2 = res2.asString();
@@ -163,36 +191,36 @@ public class ITPetBattleAPITest {
     @Test
     public void testValidateVoteEndpoint() {
         String TID =  CallCreateTournament(adminToken);
-        CallAddPet(TID, "1", 200);
-        CallStartTournament(TID);
-        CallGetTournamentState(TID, "Running");
-        CallVote4Pet(TID, "1", "",400);
-        CallVote4Pet(TID, "1","fail", 400);
-        CallVote4Pet(TID, "1","up", 200);
+        CallAddPet(this.adminToken,TID, "1", 200);
+        CallStartTournament(this.adminToken,TID);
+        CallGetTournamentState(this.playerToken,TID, "Running");
+        CallVote4Pet(this.playerToken,TID, "1", "",400);
+        CallVote4Pet(this.playerToken,TID, "1","fail", 400);
+        CallVote4Pet(this.playerToken,TID, "1","up", 200);
         CallCancelTournament(adminToken,TID);
     }
 
     @Test
     public void testLeaderboardEndpoints() {
         String TID =  CallCreateTournament(adminToken);
-        CallAddPet(TID, "1", 200);
-        CallAddPet(TID, "2", 200);
-        CallAddPet(TID, "3", 200);
-        CallAddPet(TID, "4", 200);
-        CallStartTournament(TID);
-        CallGetTournamentState(TID, "Running");
-        CallVote4Pet(TID,"1","up", 200);
-        CallVote4Pet(TID,"4","up", 200);
-        CallVote4Pet(TID,"4","up", 200);
-        CallVote4Pet(TID,"4","up", 200);
-        CallVote4Pet(TID,"2","up", 200);
-        CallVote4Pet(TID,"2","up", 200);
-        CallVote4Pet(TID,"4","up", 200);
-        CallVote4Pet(TID,"3","up", 200);
-        CallVote4Pet(TID,"3","up", 200);
-        CallVote4Pet(TID,"3","up", 200);
+        CallAddPet(this.adminToken,TID, "1", 200);
+        CallAddPet(this.adminToken,TID, "2", 200);
+        CallAddPet(this.adminToken,TID, "3", 200);
+        CallAddPet(this.adminToken,TID, "4", 200);
+        CallStartTournament(this.adminToken,TID);
+        CallGetTournamentState(this.playerToken,TID, "Running");
+        CallVote4Pet(this.playerToken,TID,"1","up", 200);
+        CallVote4Pet(this.playerToken,TID,"4","up", 200);
+        CallVote4Pet(this.playerToken,TID,"4","up", 200);
+        CallVote4Pet(this.playerToken,TID,"4","up", 200);
+        CallVote4Pet(this.playerToken,TID,"2","up", 200);
+        CallVote4Pet(this.playerToken,TID,"2","up", 200);
+        CallVote4Pet(this.playerToken,TID,"4","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
 
-        Response res1 = CallGetLeaderBoard(TID);
+        Response res1 = CallGetLeaderBoard(this.playerToken,TID);
 
         List<String> vote1 = res1.jsonPath()
                 .getList("petId");
@@ -203,18 +231,18 @@ public class ITPetBattleAPITest {
         assertThat("Pet 1 should be next rated",vote1.get(3).equals("1"));
 
 
-        CallVote4Pet(TID,"1","up", 200);
-        CallVote4Pet(TID,"4","down", 200);
-        CallVote4Pet(TID,"4","down", 200);
-        CallVote4Pet(TID,"4","down", 200);
-        CallVote4Pet(TID,"2","up", 200);
-        CallVote4Pet(TID,"2","up", 200);
-        CallVote4Pet(TID,"3","down", 200);
-        CallVote4Pet(TID,"3","up", 200);
-        CallVote4Pet(TID,"3","up", 200);
-        CallVote4Pet(TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"1","up", 200);
+        CallVote4Pet(this.playerToken,TID,"4","down", 200);
+        CallVote4Pet(this.playerToken,TID,"4","down", 200);
+        CallVote4Pet(this.playerToken,TID,"4","down", 200);
+        CallVote4Pet(this.playerToken,TID,"2","up", 200);
+        CallVote4Pet(this.playerToken,TID,"2","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","down", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","up", 200);
 
-        Response res2 = CallGetLeaderBoard(TID);
+        Response res2 = CallGetLeaderBoard(this.playerToken,TID);
 
         List<String> vote2 = res2.jsonPath()
                 .getList("petId");
@@ -228,5 +256,15 @@ public class ITPetBattleAPITest {
 
         //Cancel the tournament
         CallCancelTournament(adminToken,TID);
+    }
+
+    @Override
+    public String toString() {
+        return "ITPetBattleAPITest{" +
+                "clientSecret='" + clientSecret + '\'' +
+                ", keycloakHost='" + keycloakHost + '\'' +
+                ", adminToken='" + adminToken + '\'' +
+                ", playerToken='" + playerToken + '\'' +
+                '}';
     }
 }

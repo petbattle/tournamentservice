@@ -2,7 +2,6 @@ package com.petbattle.integration;
 
 import io.restassured.response.Response;
 
-import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -53,18 +52,24 @@ public class APIMethods {
                 .statusCode(200);
     }
 
-    public static void CallStartTournament(String TID) {
+    public static void CallStartTournament(String accessToken,String TID) {
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .put("/tournament/{tid}", TID)
                 .then()
                 .statusCode(200);
     }
 
-    public static void CallGetTournamentState(String TID, String finished) {
+    public static void CallGetTournamentState(String accessToken,String TID, String finished) {
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .get("/tournament/{tid}", TID)
                 .then()
@@ -72,18 +77,24 @@ public class APIMethods {
                 .body("State", equalTo(finished));
     }
 
-    public static void CallAddPet(String TID, String PID, int i) {
+    public static void CallAddPet(String accessToken,String TID, String PID, int i) {
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .post("/tournament/{tid}/add/{pid}", TID,PID)
                 .then()
                 .statusCode(i);
     }
 
-    public static void CallVote4Pet(String TID, String PID, String DIR,int i) {
+    public static void CallVote4Pet(String accessToken,String TID, String PID, String DIR,int i) {
         given()
                 .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
                 .when()
                 .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID,PID,DIR)
                 .then()
@@ -91,8 +102,14 @@ public class APIMethods {
     }
 
 
-    public static Response CallGetLeaderBoard(String TID) {
-        return get("/tournament/{tid}/leaderboard", TID)
+    public static Response CallGetLeaderBoard(String accessToken,String TID) {
+        return given()
+                .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
+                .when()
+                .get("/tournament/{tid}/leaderboard", TID)
                 .then()
                 .statusCode(200)
                 .contentType(JSON)
