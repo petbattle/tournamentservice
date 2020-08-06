@@ -67,7 +67,7 @@ public class TournamentAPI {
     }
 
     @POST
-    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbplayer")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -134,7 +134,7 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/add/{petId}")
-    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbplayer")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
