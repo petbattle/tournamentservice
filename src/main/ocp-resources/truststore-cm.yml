@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  annotations:
+    service.beta.openshift.io/inject-cabundle : "true"
+    cert-utils-operator.redhat-cop.io/generate-java-truststore: "true"
+    cert-utils-operator.redhat-cop.io/source-ca-key: "service-ca.crt"
+    cert-utils-operator.redhat-cop.io/java-keystore-password: "jkspassword"
+  name: java-truststore
