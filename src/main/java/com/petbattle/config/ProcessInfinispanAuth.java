@@ -38,10 +38,4 @@ public class ProcessInfinispanAuth {
             this.authUserName = "testuser";
         }
     }
-
-
-
-
-
-
 }

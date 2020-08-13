@@ -1,6 +1,7 @@
 package com.petbattle.services;
 
 
+import io.quarkus.infinispan.client.runtime.InfinispanClientRuntimeConfig;
 import io.quarkus.runtime.StartupEvent;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.client.hotrod.RemoteCache;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
+import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 
 /**
@@ -36,6 +38,7 @@ public class ServiceInit {
             "<infinispan><cache-container>" +
                     "<replicated-cache name=\"ActiveTournament\"/>" +
                     "</cache-container></infinispan>";
+    
     @Inject
     RemoteCacheManager cacheManager;
 
