@@ -3,7 +3,8 @@ kind: Infinispan
 metadata:
   name: tournamentcache
 spec:
-  replicas: 2
+  replicas: 1
+  security:
+    endpointSecretName: tournament-cache-authsecret
   service:
     type: Cache
-    replicationFactor: 2

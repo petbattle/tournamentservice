@@ -1,0 +1,5 @@
+credentials:
+- username: tournamentuser
+  password: tournamentpassword
+- username: operator
+  password: supersecretoperatorpassword

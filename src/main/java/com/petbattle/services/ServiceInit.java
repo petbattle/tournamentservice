@@ -38,28 +38,19 @@ public class ServiceInit {
             "<infinispan><cache-container>" +
                     "<replicated-cache name=\"ActiveTournament\"/>" +
                     "</cache-container></infinispan>";
-    
+
     @Inject
     RemoteCacheManager cacheManager;
-
-    @ConfigProperty(name = "Infinispan.CredFileLocn", defaultValue = "test")
-    String InfinispanAuthFile;
 
     /**
      * Listens startup event to load the data
      */
     void onStart(@Observes @Priority(value = 1) StartupEvent ev) {
         LOGGER.info("Creating Caches VotesCache & ActiveTournament");
-
-//        ProcessInfinispanAuth authProc = new ProcessInfinispanAuth(CacheName);
         //TODO : Need to add auth pulled from secret
 
         RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament", new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
         RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
-
-//        //TODO : Remove EventListeners
-//        x.addClientListener(new EventPrintListener());
-//        y.addClientListener(new EventPrintListener());
     }
 
 
