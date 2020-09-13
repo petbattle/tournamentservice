@@ -18,6 +18,8 @@ public class InfinispanTestContainer implements QuarkusTestResourceLifecycleMana
         res.put("quarkus.infinispan-client.auth-username", "user");
         res.put("quarkus.infinispan-client.auth-password", "pass");
         res.put("quarkus.infinispan-client.client-intelligence","BASIC");
+        res.put("quarkus.infinispan-client.trust-store","");
+        res.put("quarkus.infinispan-client.trust-store-password","");
         return res;
     }
 

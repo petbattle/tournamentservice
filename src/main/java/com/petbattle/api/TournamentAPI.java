@@ -11,6 +11,9 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -37,8 +40,8 @@ import java.util.List;
                 version = "1.0.1",
                 contact = @Contact(
                         name = "Tournament API Support",
-                        url = "http://exampleurl.com/contact",
-                        email = "techsupport@example.com"),
+                        url = "http://petbattle.com/contact",
+                        email = "techsupport@petbattle.com"),
                 license = @License(
                         name = "Apache 2.0",
                         url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
@@ -67,7 +70,8 @@ public class TournamentAPI {
     }
 
     @POST
-    @RolesAllowed("pbadmin")
+//    @RolesAllowed("pbadmin")
+    @Counted(name = "tournamentsCreated", description = "How many tournaments have been created.")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -76,7 +80,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}")
-    @RolesAllowed("pbplayer")
+//    @RolesAllowed("pbplayer")
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
 
@@ -88,7 +92,8 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
-    @RolesAllowed("pbplayer")
+//    @RolesAllowed("pbplayer")
+    @Timed(name = "getLeaderboardTimer", description = "A measure of how long it takes to get the leaderboard values", unit = MetricUnits.MILLISECONDS)
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
@@ -108,7 +113,8 @@ public class TournamentAPI {
 
     @PUT
     @Path("{id}")
-    @RolesAllowed("pbadmin")
+//    @RolesAllowed("pbadmin")
+    @Counted(name = "tournamentsStarted", description = "How many tournaments have been started.")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
@@ -117,7 +123,8 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}")
-    @RolesAllowed("pbadmin")
+//    @RolesAllowed("pbadmin")
+    @Counted(name = "tournamentsStopped", description = "How many tournaments have been stopped.")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
@@ -126,7 +133,8 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}/cancel")
-    @RolesAllowed("pbadmin")
+//    @RolesAllowed("pbadmin")
+    @Counted(name = "tournamentsCancelled", description = "How many tournaments have been cancelled.")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         bus.sendAndForget("CancelCurrentTournament", tournamentID);
@@ -134,7 +142,8 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/add/{petId}")
-    @RolesAllowed("pbadmin")
+//    @RolesAllowed("pbadmin")
+    @Counted(name = "petsAdded", description = "How many pets have been added to tournaments")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
@@ -146,7 +155,9 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/vote/{petId}")
-    @RolesAllowed("pbplayer")
+//    @RolesAllowed("pbplayer")
+    @Counted(name = "votes", description = "How many votes have been cast.")
+    @Timed(name = "castVoteTimer", description = "A measure of how long it takes to cast a vote for for a pet.", unit = MetricUnits.MILLISECONDS)
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
@@ -163,7 +174,8 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/votes/{petId}")
-    @RolesAllowed("pbplayer")
+//    @RolesAllowed("pbplayer")
+    @Timed(name = "getVotesTimer", description = "A measure of how long it takes to get votes for a pet.", unit = MetricUnits.MILLISECONDS)
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
@@ -178,7 +190,8 @@ public class TournamentAPI {
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
-    @RolesAllowed("pbplayer")
+//    @RolesAllowed("pbplayer")
+    @Timed(name = "getLBTimer", description = "A measure of how long it takes to get the leaderboard values for a tournament", unit = MetricUnits.MILLISECONDS)
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
         return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());
     }

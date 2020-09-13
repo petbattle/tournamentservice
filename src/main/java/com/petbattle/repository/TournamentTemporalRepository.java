@@ -23,7 +23,7 @@ public class TournamentTemporalRepository {
     RemoteCache<String, PetVote> voteCache;
 
     public TournamentTemporalRepository() {
-        System.out.println("TournamentTemporalRepository init");
+        log.info("TournamentTemporalRepository init");
     }
 
     public void addPet(String petID) {
