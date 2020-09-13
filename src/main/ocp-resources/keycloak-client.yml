@@ -9,8 +9,22 @@ spec:
     matchLabels:
       realm: pbrealm
   client:
+    name: pbclient
     clientId: pbclient
+    bearerOnly: false
     protocol: openid-connect
     rootUrl: https://www.keycloak.org/app/
     standardFlowEnabled: true
+    serviceAccountsEnabled: true
     directAccessGrantsEnabled: true
+    surrogateAuthRequired: false
+    enabled: true
+    alwaysDisplayInConsole: false,
+    clientAuthenticatorType: "client-secret"
+    consentRequired: false
+    implicitFlowEnabled: false
+    authorizationServicesEnabled: true
+    publicClient: false
+    frontchannelLogout: false
+    fullScopeAllowed: true
+    nodeReRegistrationTimeout: -1
