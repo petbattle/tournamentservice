@@ -1,0 +1,74 @@
+oc import-image quay.io/eformat/pet-battle-nsfw-model-data:latest --confirm
+oc import-image tensorflow/serving --confirm
+oc create is nsfwgate
+
+oc run test --image=image-registry.openshift-image-registry.svc:5000/pet-battle-nsfw/nsfwgate
+
+kn service create petnsfwgate --image=image-registry.openshift-image-registry.svc:5000/pet-battle-nsfw/nsfwgate:latest --port 8501 -l svrless=nsfwgate
+
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+  labels:
+    build: nsfwgate
+  name: nsfwgatebuild
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: nsfwgate:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    dockerfile: "FROM serving \nCOPY * /models/model/ \n"
+    images:
+    - from:
+        kind: ImageStreamTag
+        name: pet-battle-nsfw-model-data:latest
+      paths:
+      - destinationDir: .
+        sourcePath: /tmp/saved_model
+    type: Dockerfile
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: serving:latest
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - imageChange:
+      from:
+        kind: ImageStreamTag
+        name: pet-battle-nsfw-model-data:latest
+    type: ImageChange
+  - type: ConfigChange
+  - imageChange:
+        type: ImageChange
+
+
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: petnsfwgate
+  labels:
+    svrless: nsfwgate
+spec:
+  template:
+      spec:
+        containerConcurrency: 0
+        containers:
+        - image: image-registry.openshift-image-registry.svc:5000/pet-battle-nsfw/nsfwgate:latest
+          name: user-container
+          ports:
+            containerPort: 8501
+          readinessProbe:
+            successThreshold: 1
+            tcpSocket:
+              port: 0
+          resources: {}
