@@ -3,6 +3,7 @@ package com.petbattle.services;
 
 import io.quarkus.infinispan.client.runtime.InfinispanClientRuntimeConfig;
 import io.quarkus.runtime.StartupEvent;
+import io.vertx.core.Vertx;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -22,6 +23,9 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * Service to cleanup and load application data
@@ -46,6 +50,7 @@ public class ServiceInit {
      * Listens startup event to load the data
      */
     void onStart(@Observes @Priority(value = 1) StartupEvent ev) {
+        printGitInfo();
         LOGGER.info("Creating Caches VotesCache & ActiveTournament");
         //TODO : Need to add auth pulled from secret
 
@@ -71,6 +76,18 @@ public class ServiceInit {
         public void handleRemovedEvent(ClientCacheEntryRemovedEvent e) {
             LOGGER.info("Someone has removed an entry: " + e);
         }
+    }
 
+    public void printGitInfo() {
+        try {
+            InputStream confFile = getClass().getResourceAsStream("git.properties");
+            Properties prop = new Properties();
+            prop.load(confFile);
+            prop.forEach((k, v) -> {
+                LOGGER.info("GITINFO {}:{} ", k, v);
+            });
+        } catch (Exception ex) {
+            LOGGER.warn("GITINFO -> Unable to get git.properties file");
+        }
     }
 }

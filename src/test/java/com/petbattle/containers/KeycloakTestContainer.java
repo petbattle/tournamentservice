@@ -19,7 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManager {
-    private static final KeycloakContainer SSO = new KeycloakContainer("jboss/keycloak:latest").withRealmImportFile("pbrealm-test.json");
+    private static final KeycloakContainer SSO = new KeycloakContainer("jboss/keycloak:latest")
+            .withRealmImportFile("pbrealm-test.json");
 
     @Override
     public Map<String, String> start() {

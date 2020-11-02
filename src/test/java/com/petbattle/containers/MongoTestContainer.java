@@ -8,7 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MongoTestContainer implements QuarkusTestResourceLifecycleManager {
-    private static final MongoDBContainer DATABASE = new MongoDBContainer("mongo:4.2").withExposedPorts(27017);
+    private static final MongoDBContainer DATABASE = new MongoDBContainer("mongo:4.2")
+            .withExposedPorts(27017);
 
     @Override
     public Map<String, String> start() {

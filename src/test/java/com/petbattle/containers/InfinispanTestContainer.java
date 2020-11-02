@@ -8,7 +8,10 @@ import java.util.Map;
 
 public class InfinispanTestContainer implements QuarkusTestResourceLifecycleManager {
     public static GenericContainer infinispanContainer =
-            new GenericContainer("infinispan/server:latest").withExposedPorts(11222).withEnv("USER", "user").withEnv("PASS", "pass");
+            new GenericContainer("infinispan/server:latest")
+                    .withExposedPorts(11222)
+                    .withEnv("USER", "user")
+                    .withEnv("PASS", "pass");
 
     @Override
     public Map<String, String> start() {
