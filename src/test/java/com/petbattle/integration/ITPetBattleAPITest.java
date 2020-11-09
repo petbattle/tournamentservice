@@ -8,9 +8,7 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
@@ -27,6 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 @QuarkusTestResource(MongoTestContainer.class)
 @QuarkusTestResource(InfinispanTestContainer.class)
 @QuarkusTestResource(KeycloakTestContainer.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ITPetBattleAPITest {
     final String playerPayload = "username=player1&password=player1pwd&grant_type=password";
     final String adminPayload = "username=pbadmin&password=pbadminpwd&grant_type=password";
@@ -84,13 +83,17 @@ public class ITPetBattleAPITest {
     }
 
     @Test
+    @Order(1)
     @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
         String TID = CallCreateTournament(this.adminToken);
         CallCancelTournament(this.adminToken,TID);
+        CallGetMetricsAndVerify("TournamentCreated_total 1.0");
+        CallGetMetricsAndVerify("TournamentCancelled_total 1.0");
     }
 
     @Test
+    @Order(2)
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateStartStopStatusTournamentEndpoints() {
         String TID = CallCreateTournament(this.adminToken);
@@ -100,18 +103,24 @@ public class ITPetBattleAPITest {
         CallStopTournament(adminToken,TID);
         CallGetTournamentState(this.playerToken,TID, "Finished");
         CallCancelTournament(adminToken,TID);
+        CallGetMetricsAndVerify("TournamentStatus_total 3.0");
+        CallGetMetricsAndVerify("TournamentStopped_total 1.0");
     }
 
 
     @Test
+    @Order(3)
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateTournamentAddPetsEndpoints() {
         String TID =  CallCreateTournament(this.adminToken);
         CallAddPet(this.adminToken,TID, "12345", 200);
+        CallAddPet(this.adminToken,TID, "56789", 200);
         CallCancelTournament(adminToken,TID);
+        CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 2.0");
     }
 
     @Test
+    @Order(4)
     @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
     public void testCreateTournamentStartAddPetsEndpoints() {
         String TID =  CallCreateTournament(this.adminToken);
@@ -123,6 +132,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
+    @Order(5)
     public void testCreateStatusStartInvalidTournamentId() {
         String TID =  CallCreateTournament(adminToken);
 
@@ -161,6 +171,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
+    @Order(6)
     public void testCreateTournamentStartAddPetsVoteEndpoints() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);
@@ -189,6 +200,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
+    @Order(7)
     public void testValidateVoteEndpoint() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);
@@ -201,6 +213,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
+    @Order(8)
     public void testLeaderboardEndpoints() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);

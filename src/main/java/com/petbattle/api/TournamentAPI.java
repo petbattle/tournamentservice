@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.identity.SecurityIdentity;
@@ -11,9 +13,6 @@ import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -22,7 +21,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -53,6 +51,7 @@ public class TournamentAPI {
     private final Logger log = LoggerFactory.getLogger(TournamentAPI.class);
     private ObjectMapper jsonMapper;
     private CollectionType javaType;
+    private final MeterRegistry registry;
 
     @Inject
     SecurityIdentity securityIdentity;
@@ -63,19 +62,20 @@ public class TournamentAPI {
     @Inject
     EventBus bus;
 
-    public TournamentAPI() {
+    public TournamentAPI(MeterRegistry registry) {
         jsonMapper = new ObjectMapper();
         javaType = jsonMapper.getTypeFactory()
                 .constructCollectionType(List.class, PetVote.class);
+        this.registry = registry;
     }
 
     @POST
 //    @RolesAllowed("pbadmin")
-    @Counted(name = "tournamentsCreated", description = "How many tournaments have been created.")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
-                .onItem().apply(Message::body);
+                .onItem().invoke(() -> registry.counter("TournamentCreated", Tags.empty()).increment())
+                .onItem().transform(Message::body);
     }
 
     @GET
@@ -85,7 +85,8 @@ public class TournamentAPI {
         log.info("Get status for tournament {}", tournamentID);
 
         Uni<JsonObject> res = bus.<JsonObject>request("GetTournamentStatus", tournamentID)
-                .onItem().apply(Message::body);
+                .onItem().invoke(() -> registry.counter("TournamentStatus", Tags.empty()).increment())
+                .onItem().transform(Message::body);
 
         return res;
     }
@@ -93,14 +94,15 @@ public class TournamentAPI {
     @GET
     @Path("{id}/leaderboard")
 //    @RolesAllowed("pbplayer")
-    @Timed(name = "getLeaderboardTimer", description = "A measure of how long it takes to get the leaderboard values", unit = MetricUnits.MILLISECONDS)
+//    @Timed(name = "getLeaderboardTimer", description = "A measure of how long it takes to get the leaderboard values", unit = MetricUnits.MILLISECONDS)
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
-        Uni<String> res = bus.<String>request("GetLeaderboard", tournamentID)
-                .onItem().apply(Message::body);
 
-        return res.onItem().apply(result -> {
+        Uni<String> res = bus.<String>request("GetLeaderboard", tournamentID)
+                .onItem().transform(Message::body);
+        registry.counter("TournamentLeaderboard", Tags.empty()).increment();
+        return res.onItem().transform(result -> {
             List<PetVote> lb = new ArrayList<>();
             try {
                 lb = jsonMapper.readValue(result, javaType);
@@ -114,75 +116,79 @@ public class TournamentAPI {
     @PUT
     @Path("{id}")
 //    @RolesAllowed("pbadmin")
-    @Counted(name = "tournamentsStarted", description = "How many tournaments have been started.")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
-                .onItem().apply(Message::body);
+                .onItem().invoke(() -> registry.counter("TournamentStart", Tags.empty()).increment())
+                .onItem().transform(Message::body);
     }
 
     @DELETE
     @Path("{id}")
 //    @RolesAllowed("pbadmin")
-    @Counted(name = "tournamentsStopped", description = "How many tournaments have been stopped.")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
-                .onItem().apply(Message::body);
+                .onItem().invoke(() -> registry.counter("TournamentStopped", Tags.empty()).increment())
+                .onItem().transform(Message::body);
     }
 
     @DELETE
     @Path("{id}/cancel")
 //    @RolesAllowed("pbadmin")
-    @Counted(name = "tournamentsCancelled", description = "How many tournaments have been cancelled.")
+//    @Counted(name = "tournamentsCancelled", description = "How many tournaments have been cancelled.")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
+        registry.counter("TournamentCancelled", Tags.empty()).increment();
         bus.sendAndForget("CancelCurrentTournament", tournamentID);
     }
 
     @POST
     @Path("{id}/add/{petId}")
 //    @RolesAllowed("pbadmin")
-    @Counted(name = "petsAdded", description = "How many pets have been added to tournaments")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
         return bus.<JsonObject>request("AddPetToTournament", params)
-                .onItem().apply(Message::body);
+                .onItem().invoke(() -> registry.counter("TournamentPetsAdded", Tags.of("TID",tournamentID)).increment())
+                .onItem().transform(Message::body);
     }
 
     @POST
     @Path("{id}/vote/{petId}")
 //    @RolesAllowed("pbplayer")
-    @Counted(name = "votes", description = "How many votes have been cast.")
-    @Timed(name = "castVoteTimer", description = "A measure of how long it takes to cast a vote for for a pet.", unit = MetricUnits.MILLISECONDS)
+//    @Timed(name = "castVoteTimer", description = "A measure of how long it takes to cast a vote for for a pet.", unit = MetricUnits.MILLISECONDS)
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
-            return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST)).onItem().apply(Response.ResponseBuilder::build);
+            return Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST)).onItem().transform(Response.ResponseBuilder::build);
         JsonObject params = new JsonObject();
         params.put("timestamp", System.currentTimeMillis());
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
         params.put("dir", dir);
         return bus.<JsonObject>request("ProcessPetVote", params)
-                .onItem().apply(b -> Response.ok(b.body()).build())
+                .onItem().invoke(() -> registry.counter("TournamentPetVote",
+                        Tags.of("TID",tournamentID).and("ACTION","GET")).increment())
+                .onItem().transform(b -> Response.ok(b.body()).build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
 
     @GET
     @Path("{id}/votes/{petId}")
 //    @RolesAllowed("pbplayer")
-    @Timed(name = "getVotesTimer", description = "A measure of how long it takes to get votes for a pet.", unit = MetricUnits.MILLISECONDS)
+//    @Timed(name = "getVotesTimer", description = "A measure of how long it takes to get votes for a pet.", unit = MetricUnits.MILLISECONDS)
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
         params.put("petId", petID);
         params.put("tournamentId", tournamentID);
         return bus.<JsonObject>request("GetPetVote", params)
-                .onItem().apply(b -> Response.ok(b.body()).build())
+                .onItem().invoke(() -> registry.counter("TournamentPetVote",
+                        Tags.of("TID",tournamentID).and("ACTION","GET")).increment())
+                .onItem().transform(b -> Response.ok(b.body()).build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
 
@@ -191,8 +197,9 @@ public class TournamentAPI {
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
 //    @RolesAllowed("pbplayer")
-    @Timed(name = "getLBTimer", description = "A measure of how long it takes to get the leaderboard values for a tournament", unit = MetricUnits.MILLISECONDS)
+//    @Timed(name = "getLBTimer", description = "A measure of how long it takes to get the leaderboard values for a tournament", unit = MetricUnits.MILLISECONDS)
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
+        registry.counter("Getleaderboard", Tags.of("TID",tournamentID)).increment();
         return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());
     }
 

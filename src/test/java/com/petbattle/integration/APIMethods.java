@@ -4,12 +4,12 @@ import io.restassured.response.Response;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
+import static io.restassured.http.ContentType.TEXT;
+import static org.hamcrest.CoreMatchers.*;
 
 public class APIMethods {
 
-    public static void CallCancelTournament(String accessToken,String TID) {
+    public static void CallCancelTournament(String accessToken, String TID) {
 
         given()
                 .auth()
@@ -23,7 +23,7 @@ public class APIMethods {
     }
 
     public static String CallCreateTournament(String accessToken) {
-        Response x =  given()
+        Response x = given()
                 .contentType(JSON)
                 .auth()
                 .preemptive()
@@ -37,10 +37,10 @@ public class APIMethods {
                 .extract()
                 .response();
 
-        return  x.getBody().jsonPath().getString("TournamentID");
+        return x.getBody().jsonPath().getString("TournamentID");
     }
 
-    public static void CallStopTournament(String accessToken,String TID) {
+    public static void CallStopTournament(String accessToken, String TID) {
         given()
                 .contentType(JSON)
                 .auth()
@@ -52,7 +52,7 @@ public class APIMethods {
                 .statusCode(200);
     }
 
-    public static void CallStartTournament(String accessToken,String TID) {
+    public static void CallStartTournament(String accessToken, String TID) {
         given()
                 .contentType(JSON)
                 .auth()
@@ -64,7 +64,7 @@ public class APIMethods {
                 .statusCode(200);
     }
 
-    public static void CallGetTournamentState(String accessToken,String TID, String finished) {
+    public static void CallGetTournamentState(String accessToken, String TID, String finished) {
         given()
                 .contentType(JSON)
                 .auth()
@@ -77,32 +77,32 @@ public class APIMethods {
                 .body("State", equalTo(finished));
     }
 
-    public static void CallAddPet(String accessToken,String TID, String PID, int i) {
+    public static void CallAddPet(String accessToken, String TID, String PID, int i) {
         given()
                 .contentType(JSON)
                 .auth()
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .post("/tournament/{tid}/add/{pid}", TID,PID)
+                .post("/tournament/{tid}/add/{pid}", TID, PID)
                 .then()
                 .statusCode(i);
     }
 
-    public static void CallVote4Pet(String accessToken,String TID, String PID, String DIR,int i) {
+    public static void CallVote4Pet(String accessToken, String TID, String PID, String DIR, int i) {
         given()
                 .contentType(JSON)
                 .auth()
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID,PID,DIR)
+                .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID, PID, DIR)
                 .then()
                 .statusCode(i);
     }
 
 
-    public static Response CallGetLeaderBoard(String accessToken,String TID) {
+    public static Response CallGetLeaderBoard(String accessToken, String TID) {
         return given()
                 .contentType(JSON)
                 .auth()
@@ -115,5 +115,16 @@ public class APIMethods {
                 .contentType(JSON)
                 .extract()
                 .response();
+    }
+
+    public static void CallGetMetricsAndVerify(String assertion) {
+        given()
+                .when()
+                .get("/metrics")
+                .then()
+                .statusCode(200)
+                .contentType(TEXT)
+                .log().all()
+                .body(containsString(assertion));
     }
 }
