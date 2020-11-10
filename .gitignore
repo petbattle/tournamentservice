@@ -31,6 +31,8 @@ nb-configuration.xml
 *.orig
 *.rej
 
+telepresence.log
+
 # Maven
 target/
 pom.xml.tag

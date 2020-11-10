@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
+import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.quarkus.qute.Template;
@@ -71,6 +72,7 @@ public class TournamentAPI {
 
     @POST
 //    @RolesAllowed("pbadmin")
+    @Timed
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -81,6 +83,7 @@ public class TournamentAPI {
     @GET
     @Path("{id}")
 //    @RolesAllowed("pbplayer")
+    @Timed
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
 
@@ -94,7 +97,7 @@ public class TournamentAPI {
     @GET
     @Path("{id}/leaderboard")
 //    @RolesAllowed("pbplayer")
-//    @Timed(name = "getLeaderboardTimer", description = "A measure of how long it takes to get the leaderboard values", unit = MetricUnits.MILLISECONDS)
+    @Timed
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
@@ -116,6 +119,7 @@ public class TournamentAPI {
     @PUT
     @Path("{id}")
 //    @RolesAllowed("pbadmin")
+    @Timed
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
@@ -126,6 +130,7 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}")
 //    @RolesAllowed("pbadmin")
+    @Timed
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
@@ -136,7 +141,6 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}/cancel")
 //    @RolesAllowed("pbadmin")
-//    @Counted(name = "tournamentsCancelled", description = "How many tournaments have been cancelled.")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         registry.counter("TournamentCancelled", Tags.empty()).increment();
@@ -146,6 +150,7 @@ public class TournamentAPI {
     @POST
     @Path("{id}/add/{petId}")
 //    @RolesAllowed("pbadmin")
+    @Timed
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
@@ -159,7 +164,7 @@ public class TournamentAPI {
     @POST
     @Path("{id}/vote/{petId}")
 //    @RolesAllowed("pbplayer")
-//    @Timed(name = "castVoteTimer", description = "A measure of how long it takes to cast a vote for for a pet.", unit = MetricUnits.MILLISECONDS)
+    @Timed
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
@@ -169,9 +174,10 @@ public class TournamentAPI {
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
         params.put("dir", dir);
+
         return bus.<JsonObject>request("ProcessPetVote", params)
                 .onItem().invoke(() -> registry.counter("TournamentPetVote",
-                        Tags.of("TID",tournamentID).and("ACTION","GET")).increment())
+                        Tags.of("TID",tournamentID).and("DIR",dir.toUpperCase())).increment())
                 .onItem().transform(b -> Response.ok(b.body()).build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
@@ -179,7 +185,7 @@ public class TournamentAPI {
     @GET
     @Path("{id}/votes/{petId}")
 //    @RolesAllowed("pbplayer")
-//    @Timed(name = "getVotesTimer", description = "A measure of how long it takes to get votes for a pet.", unit = MetricUnits.MILLISECONDS)
+    @Timed
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
@@ -197,7 +203,7 @@ public class TournamentAPI {
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
 //    @RolesAllowed("pbplayer")
-//    @Timed(name = "getLBTimer", description = "A measure of how long it takes to get the leaderboard values for a tournament", unit = MetricUnits.MILLISECONDS)
+    @Timed
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
         registry.counter("Getleaderboard", Tags.of("TID",tournamentID)).increment();
         return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());

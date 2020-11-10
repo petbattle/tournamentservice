@@ -1,6 +1,8 @@
 package com.petbattle.repository;
 
 import com.petbattle.core.PetVote;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.cache.CacheInvalidate;
 import io.quarkus.cache.CacheResult;
 import io.quarkus.infinispan.client.Remote;
@@ -17,19 +19,23 @@ import java.util.stream.Collectors;
 @Singleton
 public class TournamentTemporalRepository {
     private final Logger log = LoggerFactory.getLogger(TournamentTemporalRepository.class);
+    private final MeterRegistry registry;
 
     @Inject
     @Remote("VotesCache")
     RemoteCache<String, PetVote> voteCache;
 
-    public TournamentTemporalRepository() {
+    public TournamentTemporalRepository(MeterRegistry registry) {
         log.info("TournamentTemporalRepository init");
+        this.registry = registry;
     }
 
+    @Timed
     public void addPet(String petID) {
         voteCache.put(petID, new PetVote(petID, 0, 0));
     }
 
+    @Timed
     public void upVotePet(String petID) {
         PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
@@ -39,6 +45,7 @@ public class TournamentTemporalRepository {
         }
     }
 
+    @Timed
     public void downVotePet(String petID) {
         PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
@@ -62,6 +69,7 @@ public class TournamentTemporalRepository {
     }
 
     @CacheInvalidate(cacheName = "leaderboard-cache")
+    @Timed
     public List<PetVote> getVotes() {
         return voteCache.values().stream()
                 .sorted(Comparator.comparingInt(PetVote::getVoteTally).reversed()).
@@ -73,6 +81,7 @@ public class TournamentTemporalRepository {
     }
 
     @CacheResult(cacheName = "leaderboard-cache")
+    @Timed
     public List<PetVote> getLeaderboard() {
         return this.getVotes();
     }

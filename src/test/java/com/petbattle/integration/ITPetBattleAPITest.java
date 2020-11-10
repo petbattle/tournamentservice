@@ -44,7 +44,6 @@ public class ITPetBattleAPITest {
         if (!adminToken.isEmpty()) return;
 
         String userResp =  given()
-//                .log().all()
                 .contentType(URLENC)
                 .auth()
                 .preemptive()
@@ -197,6 +196,8 @@ public class ITPetBattleAPITest {
 
         //Cancel the tournament
         CallCancelTournament(adminToken,TID);
+        CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 4.0");
+        CallGetMetricsAndVerify("TournamentLeaderboard_total 2.0");
     }
 
     @Test
@@ -209,7 +210,10 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID, "1", "",400);
         CallVote4Pet(this.playerToken,TID, "1","fail", 400);
         CallVote4Pet(this.playerToken,TID, "1","up", 200);
+        CallVote4Pet(this.playerToken,TID, "1","down", 200);
         CallCancelTournament(adminToken,TID);
+        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"UP\",TID=\""+TID+"\",} 1.0");
+        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"DOWN\",TID=\""+TID+"\",} 1.0");
     }
 
     @Test
@@ -260,8 +264,6 @@ public class ITPetBattleAPITest {
         List<String> vote2 = res2.jsonPath()
                 .getList("petId");
 
-        System.out.println(res2.getBody().prettyPrint());
-
         assertThat("Pet 3 should be highest rated",vote2.get(0).equals("3"));
         assertThat("Pet 2 should be next rated",vote2.get(1).equals("2"));
         assertThat("Pet 1 should be next rated",vote2.get(2).equals("1"));
@@ -269,6 +271,10 @@ public class ITPetBattleAPITest {
 
         //Cancel the tournament
         CallCancelTournament(adminToken,TID);
+
+        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"UP\",TID=\""+TID+"\",} 16.0");
+        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"DOWN\",TID=\""+TID+"\",} 4.0");
+        CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 4.0");
     }
 
     @Override
