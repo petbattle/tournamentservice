@@ -1,0 +1,71 @@
+{{- if .Values.deploymentConfig }}
+---
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: {{ include "pet-battle-tournament.fullname" . }}
+  labels:
+    {{- include "pet-battle-tournament.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: 10
+  selector:
+    {{- include "pet-battle-tournament.selectorLabels" . | nindent 4 }}
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/metrics'
+        prometheus.io/port: '8080'
+        rollme: {{ randAlphaNum 5 | quote }}
+        {{- if .Values.istio.enabled }}
+        sidecar.istio.io/inject: "true"
+        traffic.sidecar.istio.io/excludeOutboundPorts: "27017"
+        proxy.istio.io/config: |
+          tracing:
+            sampling: 100.0
+        {{- end}}
+      creationTimestamp: null
+      labels:
+        {{- include "pet-battle-tournament.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - image: ''
+          imagePullPolicy: Always
+          name: {{ include "pet-battle-tournament.name" . }}
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 8443
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  test: false
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+          - {{ include "pet-battle-tournament.name" . }}
+        from:
+          kind: ImageStreamTag
+          name: {{ include "pet-battle-tournament.fullname" . }}:{{ .Chart.AppVersion }}
+        lastTriggeredImage: ""
+      type: ImageChange
+{{- end }}

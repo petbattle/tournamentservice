@@ -1,0 +1,13 @@
+# OpenShift objects
+route: true
+deploymentConfig: true
+replicas: 1
+image_repository: quay.io
+image_name: pet-battle-tournament
+image_namespace: eformat
+image_version: latest
+# service mesh
+istio:
+  enabled: false
+  mtls: true
+  domain: apps.hivec.sandbox209.opentlc.com
