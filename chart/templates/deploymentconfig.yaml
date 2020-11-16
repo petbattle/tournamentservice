@@ -40,7 +40,68 @@ spec:
         {{- include "pet-battle-tournament.selectorLabels" . | nindent 8 }}
     spec:
       containers:
-        - image: ''
+        - env:
+            - name: oidcvar
+              valueFrom:
+                secretKeyRef:
+                  key: OIDCVAR
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            {{- if .Values.mongodbTemplate.enabled }}
+            - name: DATABASE_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database-admin-password
+                  name: {{ include "mongodb.fullname" . }}
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  key: database-name
+                  name: {{ include "mongodb.fullname" . }}
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: database-password
+                  name: {{ include "mongodb.fullname" . }}
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: database-user
+                  name: {{ include "mongodb.fullname" . }}
+            - name: DATABASE_SERVICE_HOST
+              value: {{ include "mongodb.fullname" . }}
+            - name: DATABASE_SERVICE_PORT
+              value: '27017'
+            {{- end }}
+            {{- if .Values.infinispan.enabled }}
+            - name: INFINISPAN_SERVICE_HOST
+              valueFrom:
+                secretKeyRef:
+                  key: INFINISPAN_SERVICE_HOST
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            - name: INFINISPAN_SERVICE_PORT
+              valueFrom:
+                secretKeyRef:
+                  key: INFINISPAN_SERVICE_PORT
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            - name: INFINISPAN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: INFINISPAN_PASSWORD
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            - name: INFINISPAN_REALM
+              valueFrom:
+                secretKeyRef:
+                  key: INFINISPAN_REALM
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            - name: INFINISPAN_USER
+              valueFrom:
+                secretKeyRef:
+                  key: INFINISPAN_USER
+                  name: {{ include "pet-battle-tournament.fullname" . }}
+            {{- end }}
+            - name: QUARKUS_PROFILE
+              value: prod
+          image: ''
           imagePullPolicy: Always
           name: {{ include "pet-battle-tournament.name" . }}
           ports:
@@ -51,11 +112,20 @@ spec:
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /deployments/truststore.jks
+              name: java-truststore
+              subPath: truststore.jks
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: java-truststore
+          name: java-truststore
   test: false
   triggers:
     - type: ConfigChange

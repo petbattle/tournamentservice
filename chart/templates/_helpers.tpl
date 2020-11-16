@@ -28,6 +28,10 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+{{- define "mongodb.fullname" -}}
+{{- printf "%s-%s" .Release.Name "mongodb" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}
@@ -47,6 +51,15 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
+{{- define "mongodb.labels" -}}
+helm.sh/chart: {{ include "pet-battle-tournament.chart" . }}
+{{ include "mongodb.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
 {{/*
 Selector labels
 */}}
@@ -55,4 +68,10 @@ app.kubernetes.io/name: {{ include "pet-battle-tournament.name" . }}
 app.kubernetes.io/component: {{ include "pet-battle-tournament.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 deploymentconfig: {{ include "pet-battle-tournament.fullname" . }}
+{{- end -}}
+
+{{- define "mongodb.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "mongodb.name" . }}
+app.kubernetes.io/component: {{ include "mongodb.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end -}}

@@ -28,3 +28,11 @@ Browse to tournament
 ```bash
 http://localhost:8080/tournament/leaderboard/af5f24cc-20ec-4086-9755-111c8da8b526
 ```
+
+## Using helm and OpenShift
+
+This will deploy the application and dependant infrastructure apps (datagrid,keycloak,mongodb)
+```bash
+oc new-project pet-battle-tournament
+helm template my chart/ | oc apply -f- -n pet-battle-tournament
+```
