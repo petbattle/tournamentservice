@@ -36,3 +36,17 @@ This will deploy the application and dependant infrastructure apps (datagrid,key
 oc new-project pet-battle-tournament
 helm template my chart/ | oc apply -f- -n pet-battle-tournament
 ```
+
+or if you want to deploy straight from the chart repository
+```bash
+oc new-project oc new-project pet-battle-tournament
+helm repo add petbattle https://petbattle.github.io/helm-charts
+helm repo update
+cert_utils_chart_version=$(shell helm search repo petbattle/pet-battle-tournament | grep petbattle/pet-battle-tournament | awk '{print $$2}'))
+helm fetch cert-utils-operator/cert-utils-operator --version ${cert_utils_chart_version}
+helm template cert-utils-operator-${cert_utils_chart_version}.tgz --namespace cert-utils-operator | oc apply -f - -n cert-utils-operator
+rm -f cert-utils-operator-${cert_utils_chart_version}.tgz
+oc -n "${CERTUTILS_NAMESPACE}" wait --for condition=available --timeout=120s deployment/cert-utils-operator
+sleep 10
+
+```
