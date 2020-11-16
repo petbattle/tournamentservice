@@ -64,3 +64,9 @@ helm template my pet-battle-tournament-${chart_version}.tgz | oc apply -f- -n pe
 rm -f pet-battle-tournament-${chart_version}.tgz
 oc -n pet-battle-tournament  wait --for condition=available --timeout=120s deploymentconfig/my-pet-battle-tournament
 ```
+
+And to delete
+```bash
+helm template my chart/ | oc delete -f- -n pet-battle-tournament
+oc delete csv datagrid-operator.v8.1.1 keycloak-operator.v11.0.0
+```
