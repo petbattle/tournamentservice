@@ -1,6 +1,6 @@
 # Image URL to use all building/pushing image targets
 REGISTRY ?= quay.io
-REPOSITORY ?= $(REGISTRY)/eformat/pet-battle-tournament
+REPOSITORY ?= $(REGISTRY)/petbattle/pet-battle-tournament
 
 IMG := $(REPOSITORY):latest
 

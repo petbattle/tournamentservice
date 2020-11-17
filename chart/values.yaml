@@ -4,7 +4,7 @@ deploymentConfig: true
 replicas: 1
 image_repository: quay.io
 image_name: pet-battle-tournament
-image_namespace: eformat
+image_namespace: petbattle
 image_version: latest
 # mongodb
 mongodbTemplate:
