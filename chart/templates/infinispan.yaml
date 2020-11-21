@@ -1,0 +1,43 @@
+{{- if .Values.infinispan.enabled }}
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: datagrid
+spec:
+  channel: 8.1.x
+  installPlanApproval: Automatic
+  name: datagrid
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  startingCSV: datagrid-operator.v8.1.1
+---
+apiVersion: infinispan.org/v1
+kind: Infinispan
+metadata:
+  name: infinispan
+spec:
+  replicas: 2
+  service:
+    type: DataGrid
+    sites:
+      local:
+        name: cloud
+        expose:
+          type: LoadBalancer
+  security:
+    endpointSecretName: connect-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: connect-secret
+type: Opaque
+stringData:
+  identities.yaml: |-
+    credentials:
+    - username: developer
+      password: password
+    - username: operator
+      password: password
+{{- end }}
