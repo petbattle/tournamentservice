@@ -6,6 +6,7 @@ image_repository: quay.io
 image_name: pet-battle-tournament
 image_namespace: petbattle
 image_version: latest
+jkspassword: jkspassword
 # mongodb
 mongodbTemplate:
   enabled: true

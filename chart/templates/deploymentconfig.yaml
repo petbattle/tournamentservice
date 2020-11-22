@@ -41,6 +41,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: JAVA_OPTIONS
+              value: -Dquarkus.infinispan-client.trust-store=/deployments/config/truststore.jks -Djavax.net.ssl.trustStore=/deployments/config/truststore.jks -Djavax.net.ssl.trustStorePassword={{ .Values.jkspassword }}
             - name: oidcvar
               valueFrom:
                 secretKeyRef:
@@ -113,9 +115,10 @@ spec:
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
-            - mountPath: /deployments/truststore.jks
-              name: java-truststore
-              subPath: truststore.jks
+            - mountPath: /deployments/config/
+              name: javatruststorevol
+              readOnly: true
+              subPath: ""    
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -123,9 +126,9 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
         - configMap:
-            defaultMode: 420
+            defaultMode: 384
             name: java-truststore
-          name: java-truststore
+          name: javatruststorevol
   test: false
   triggers:
     - type: ConfigChange
