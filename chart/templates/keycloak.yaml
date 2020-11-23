@@ -55,6 +55,11 @@ spec:
     frontchannelLogout: false
     fullScopeAllowed: true
     nodeReRegistrationTimeout: -1
+    defaultRoles:
+        - "pbusers"
+        - "pbviewer"
+        - "pbtest"
+        - "pbadmin"
 ---
 apiVersion: keycloak.org/v1alpha1
 kind: KeycloakRealm
@@ -89,8 +94,8 @@ spec:
         value: "password"
     clientRoles:
       "pbclient":
-        - "users"
-        - "viewer"
+        - "pbusers"
+        - "pbviewer"
   realmSelector:
     matchLabels:
       realm: pbrealm
@@ -115,8 +120,14 @@ spec:
       - "admin"
     clientRoles:
       "pbclient":
-        - "test"
-        - "admin"
+        - "pbtest"
+        - "pbadmin"
+        - "pbusers"
+        - "pbviewer"
+      "realm-management":
+        - "manage-users"
+        - "manage-realm"
+        - "view-realm"               
   realmSelector:
     matchLabels:
       realm: pbrealm

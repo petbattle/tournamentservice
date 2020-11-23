@@ -17,7 +17,7 @@ kind: Infinispan
 metadata:
   name: infinispan
 spec:
-  replicas: 2
+  replicas: 1
   service:
     type: DataGrid
     sites:
