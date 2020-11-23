@@ -40,7 +40,7 @@ CERTUTILS_NAMESPACE=cert-utils-operator
 oc new-project "${CERTUTILS_NAMESPACE}"
 helm repo add cert-utils-operator https://redhat-cop.github.io/cert-utils-operator
 helm repo update
-cert_utils_chart_version=$(helm search repo cert-utils-operator/cert-utils-operator | grep cert-utils-operator/cert-utils-operator | awk '{print $2}'))
+cert_utils_chart_version=$(helm search repo cert-utils-operator/cert-utils-operator | grep cert-utils-operator/cert-utils-operator | awk '{print $2}')
 helm fetch cert-utils-operator/cert-utils-operator --version ${cert_utils_chart_version}
 helm template cert-utils-operator-${cert_utils_chart_version}.tgz --namespace cert-utils-operator | oc apply -f- -n cert-utils-operator
 rm -f cert-utils-operator-${cert_utils_chart_version}.tgz
@@ -55,7 +55,7 @@ helm template my chart/ | oc apply -f- -n pet-battle-tournament
 
 OR deploy applications straight from the chart repository
 ```bash
-oc new-project oc new-project pet-battle-tournament
+oc new-project pet-battle-tournament
 helm repo add petbattle https://petbattle.github.io/helm-charts
 helm repo update
 chart_version=$(helm search repo petbattle/pet-battle-tournament | grep petbattle/pet-battle-tournament | awk '{print $2}')
