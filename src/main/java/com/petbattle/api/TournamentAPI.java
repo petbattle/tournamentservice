@@ -22,6 +22,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.*;
@@ -45,7 +46,7 @@ import java.util.List;
                         name = "Apache 2.0",
                         url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
 )
-@Path("/tournament")
+@Path("/api/tournament")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class TournamentAPI {
@@ -71,7 +72,7 @@ public class TournamentAPI {
     }
 
     @POST
-//    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbadmin")
     @Timed
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
@@ -82,7 +83,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}")
-//    @RolesAllowed("pbplayer")
+    @RolesAllowed("pbplayer")
     @Timed
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
@@ -96,7 +97,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
-//    @RolesAllowed("pbplayer")
+    @RolesAllowed("pbplayer")
     @Timed
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
@@ -118,7 +119,7 @@ public class TournamentAPI {
 
     @PUT
     @Path("{id}")
-//    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbadmin")
     @Timed
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
@@ -129,7 +130,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}")
-//    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbadmin")
     @Timed
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
@@ -140,7 +141,7 @@ public class TournamentAPI {
 
     @DELETE
     @Path("{id}/cancel")
-//    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbadmin")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         registry.counter("TournamentCancelled", Tags.empty()).increment();
@@ -149,7 +150,7 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/add/{petId}")
-//    @RolesAllowed("pbadmin")
+    @RolesAllowed("pbadmin")
     @Timed
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
@@ -163,7 +164,7 @@ public class TournamentAPI {
 
     @POST
     @Path("{id}/vote/{petId}")
-//    @RolesAllowed("pbplayer")
+    @RolesAllowed("pbplayer")
     @Timed
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
@@ -184,7 +185,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/votes/{petId}")
-//    @RolesAllowed("pbplayer")
+    @RolesAllowed("pbplayer")
     @Timed
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
@@ -202,7 +203,7 @@ public class TournamentAPI {
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
-//    @RolesAllowed("pbplayer")
+    @RolesAllowed("pbplayer")
     @Timed
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
         registry.counter("Getleaderboard", Tags.of("TID",tournamentID)).increment();

@@ -1,6 +1,7 @@
 package com.petbattle.integration;
 
 import io.restassured.response.Response;
+import javax.ws.rs.core.Response.*;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
@@ -17,9 +18,21 @@ public class APIMethods {
                 .oauth2(accessToken)
                 .contentType(JSON)
                 .when()
-                .delete("/tournament/{tid}/cancel", TID)
+                .delete("/api/tournament/{tid}/cancel", TID)
                 .then()
                 .statusCode(204);
+    }
+
+    public static void CallCreateTournamentInvalidAuth(String accessToken) {
+        given()
+                .contentType(JSON)
+                .auth()
+                .preemptive()
+                .oauth2(accessToken)
+                .when()
+                .post("/api/tournament")
+                .then()
+                .statusCode(Status.UNAUTHORIZED.getStatusCode());
     }
 
     public static String CallCreateTournament(String accessToken) {
@@ -29,9 +42,9 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .post("/tournament")
+                .post("/api/tournament")
                 .then()
-                .statusCode(200)
+                .statusCode(Status.OK.getStatusCode())
                 .contentType(JSON)
                 .body(notNullValue())
                 .extract()
@@ -47,9 +60,9 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .delete("/tournament/{tid}", TID)
+                .delete("/api/tournament/{tid}", TID)
                 .then()
-                .statusCode(200);
+                .statusCode(Status.OK.getStatusCode());
     }
 
     public static void CallStartTournament(String accessToken, String TID) {
@@ -59,9 +72,9 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .put("/tournament/{tid}", TID)
+                .put("/api/tournament/{tid}", TID)
                 .then()
-                .statusCode(200);
+                .statusCode(Status.OK.getStatusCode());
     }
 
     public static void CallGetTournamentState(String accessToken, String TID, String finished) {
@@ -71,9 +84,9 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .get("/tournament/{tid}", TID)
+                .get("/api/tournament/{tid}", TID)
                 .then()
-                .statusCode(200)
+                .statusCode(Status.OK.getStatusCode())
                 .body("State", equalTo(finished));
     }
 
@@ -84,7 +97,7 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .post("/tournament/{tid}/add/{pid}", TID, PID)
+                .post("/api/tournament/{tid}/add/{pid}", TID, PID)
                 .then()
                 .statusCode(i);
     }
@@ -96,7 +109,7 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .post("/tournament/{tid}/vote/{pid}?dir={dir}", TID, PID, DIR)
+                .post("/api/tournament/{tid}/vote/{pid}?dir={dir}", TID, PID, DIR)
                 .then()
                 .statusCode(i);
     }
@@ -109,9 +122,9 @@ public class APIMethods {
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .get("/tournament/{tid}/leaderboard", TID)
+                .get("/api/tournament/{tid}/leaderboard", TID)
                 .then()
-                .statusCode(200)
+                .statusCode(Status.OK.getStatusCode())
                 .contentType(JSON)
                 .extract()
                 .response();
@@ -122,7 +135,7 @@ public class APIMethods {
                 .when()
                 .get("/metrics")
                 .then()
-                .statusCode(200)
+                .statusCode(Status.OK.getStatusCode())
                 .contentType(TEXT)
                 .log().all()
                 .body(containsString(assertion));

@@ -83,6 +83,13 @@ public class ITPetBattleAPITest {
 
     @Test
     @Order(1)
+    @DisplayName("Test Creation of a tournament with invalid auth")
+    public void testNewTournamentEndpointInvalidAuth() {
+        CallCreateTournamentInvalidAuth("invalidtokenANDIknowIT");
+    }
+
+    @Test
+    @Order(1)
     @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
         String TID = CallCreateTournament(this.adminToken);
@@ -141,7 +148,7 @@ public class ITPetBattleAPITest {
                 .preemptive()
                 .oauth2(this.playerToken)
                 .when()
-                .get("/tournament/{tid}", "INVALIDTESTID")
+                .get("/api/tournament/{tid}", "INVALIDTESTID")
                 .then()
                 .statusCode(500);
 
@@ -151,7 +158,7 @@ public class ITPetBattleAPITest {
                 .preemptive()
                 .oauth2(this.adminToken)
                 .when()
-                .put("/tournament/{tid}", "INVALIDTESTID")
+                .put("/api/tournament/{tid}", "INVALIDTESTID")
                 .then()
                 .statusCode(500);
 
@@ -161,7 +168,7 @@ public class ITPetBattleAPITest {
                 .preemptive()
                 .oauth2(this.adminToken)
                 .when()
-                .delete("/tournament/{tid}", "INVALIDTESTID")
+                .delete("/api/tournament/{tid}", "INVALIDTESTID")
                 .then()
                 .statusCode(500);
 
