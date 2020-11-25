@@ -24,4 +24,5 @@ jobs:
           file: ./src/main/resources/Dockerfile
           repository: petbattle/pet-battle-tournament
           tags: quay.io/petbattle/pet-battle-tournament:ghabuilt
-          push: true
+          cache-to: type=local,dest=cache
+          cache-from: type=local,src=cache
