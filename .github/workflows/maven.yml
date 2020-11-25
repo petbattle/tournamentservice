@@ -5,7 +5,6 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -15,3 +14,11 @@ jobs:
           architecture: x64
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+      - name: Build With Docker
+        run: cp target/*.jar staging
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./src/main/resources/Dockerfile
