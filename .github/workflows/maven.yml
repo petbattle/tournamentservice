@@ -14,8 +14,6 @@ jobs:
           architecture: x64
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: Build With Docker
-        run: cp target/*.jar staging
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
