@@ -26,3 +26,4 @@ jobs:
           tags: quay.io/petbattle/pet-battle-tournament:ghabuilt
           cache-to: type=local,dest=cache
           cache-from: type=local,src=cache
+          push: true
