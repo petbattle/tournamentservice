@@ -16,3 +16,5 @@ jobs:
       - run: docker build . --file ./src/main/resources/Dockerfile --tag petbattle
       - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:ghabuilt
       - run: docker push quay.io/petbattle/pet-battle-tournament:ghabuilt
+
+      
