@@ -21,7 +21,7 @@ jobs:
           context: .
           file: ./src/main/resources/Dockerfile
           path: ${{ env.context }}
-          registry: ${{ quay.io }}
+          registry: quay.io
           username: ${{ secrets.REPO_USER }}
           password: ${{ secrets.REPO_TOKEN }}
           repository: petbattle / pet-battle-tournament
