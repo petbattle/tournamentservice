@@ -25,4 +25,4 @@ jobs:
           username: ${{ secrets.REPO_USER }}
           password: ${{ secrets.REPO_TOKEN }}
           repository: petbattle/pet-battle-tournament
-          tags: quay.io/petbattle/petbattle/pet-battle-tournament:ghabuilt
+          tags: quay.io/petbattle/pet-battle-tournament:ghabuilt
