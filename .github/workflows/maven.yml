@@ -26,4 +26,4 @@ jobs:
           password: ${{ secrets.REPO_TOKEN }}
           repository: petbattle / pet-battle-tournament
           tag_with_ref: true
-          tags: "GHABUILT"
+          tags: "ghabuilt"
