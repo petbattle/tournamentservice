@@ -24,6 +24,5 @@ jobs:
           registry: quay.io
           username: ${{ secrets.REPO_USER }}
           password: ${{ secrets.REPO_TOKEN }}
-          repository: petbattle / pet-battle-tournament
-          tag_with_ref: true
-          tags: "ghabuilt"
+          repository: petbattle/pet-battle-tournament
+          tags: quay.io/petbattle/petbattle/pet-battle-tournament:ghabuilt
