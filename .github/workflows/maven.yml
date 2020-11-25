@@ -14,9 +14,16 @@ jobs:
           architecture: x64
       - name: Build with Maven
         run: mvn -B package --file pom.xml
-      - name: Build and push
+      - name: Docker Build and push
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: .
           file: ./src/main/resources/Dockerfile
+          path: ${{ env.context }}
+          registry: ${{ quay.io }}
+          username: ${{ secrets.REPO_USER }}
+          password: ${{ secrets.REPO_TOKEN }}
+          repository: petbattle / pet-battle-tournament
+          tag_with_ref: true
+          tags: "GHABUILT"
