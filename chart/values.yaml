@@ -1,6 +1,7 @@
 # OpenShift objects
 route: true
 deploymentConfig: true
+serviceMonitor: true
 replicas: 1
 image_repository: quay.io
 image_name: pet-battle-tournament
