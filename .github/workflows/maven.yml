@@ -14,7 +14,7 @@ jobs:
       - run: mvn -B package --file pom.xml
       - run: echo "${{ secrets.REPO_TOKEN }}" | docker login https://quay.io -u ${{ secrets.REPO_USER }} --password-stdin
       - run: docker build . --file ./src/main/resources/Dockerfile --tag petbattle
-      - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:ghabuilt
-      - run: docker push quay.io/petbattle/pet-battle-tournament:ghabuilt
+      - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
+      - run: docker push quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
 
       
