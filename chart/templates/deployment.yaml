@@ -15,6 +15,7 @@ spec:
   template:
     metadata:
       annotations:
+        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ include "pet-battle-tournament.fullname" . }}:{{ .Chart.AppVersion }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"pet-battle-tournament\")].image"}]'
         alpha.image.policy.openshift.io/resolve-names: '*'
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/metrics'
