@@ -8,7 +8,6 @@ image_repository: quay.io
 image_name: pet-battle-tournament
 image_namespace: petbattle
 image_version: latest
-istream_tag: 1.0.0
 jkspassword: jkspassword
 # mongodb
 mongodbTemplate:

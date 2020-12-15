@@ -95,7 +95,7 @@ spec:
             {{- end }}
             - name: QUARKUS_PROFILE
               value: prod
-          image: {{ include "pet-battle-tournament.fullname" . }}:{{ .Values.istream_tag }}
+          image: {{ include "pet-battle-tournament.fullname" . }}:{{ .Chart.AppVersion }}
           imagePullPolicy: Always
           name: {{ include "pet-battle-tournament.name" . }}
           ports:
