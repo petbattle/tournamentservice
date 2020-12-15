@@ -16,6 +16,9 @@ apiVersion: infinispan.org/v1
 kind: Infinispan
 metadata:
   name: infinispan
+  labels:
+        {{- include "pet-battle-tournament.labels" . | nindent 4 }}
+        {{- include "pet-battle-tournament.stateLabels" . | nindent 4 }}
 spec:
   replicas: 1
   service:
