@@ -1,4 +1,4 @@
-{{- if .Values.deploymentConfig }}
+{{- if (eq .Values.deployment false) }}
 ---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig

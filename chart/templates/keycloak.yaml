@@ -21,7 +21,6 @@ metadata:
   labels:
     app: pbkeycloak
     {{- include "pet-battle-tournament.labels" . | nindent 4 }}
-    {{- include "pet-battle-tournament.stateLabels" . | nindent 4 }}
 spec:
   instances: 1
   externalAccess:
