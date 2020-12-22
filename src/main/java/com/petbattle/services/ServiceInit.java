@@ -1,6 +1,9 @@
 package com.petbattle.services;
 
 
+import io.quarkus.banner.BannerConfig;
+import io.quarkus.deployment.util.FileUtil;
+import io.quarkus.infinispan.client.runtime.InfinispanClientRuntimeConfig;
 import io.quarkus.runtime.StartupEvent;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -12,6 +15,7 @@ import org.infinispan.client.hotrod.event.ClientCacheEntryCreatedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryModifiedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryRemovedEvent;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
+import org.mvel2.util.Make;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +23,16 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Scanner;
+
+import io.quarkus.runtime.util.ClassPathUtils;
 
 /**
  * Service to cleanup and load application data
@@ -67,6 +81,31 @@ public class ServiceInit {
         @ClientCacheEntryRemoved
         public void handleRemovedEvent(ClientCacheEntryRemovedEvent e) {
             LOGGER.info("Someone has removed an entry: " + e);
+        }
+    }
+
+    public void printGitInfo() {
+        try {
+            readGitInfo();
+        } catch (Exception ex) {
+            LOGGER.warn("GITINFO -> Unable to get git.properties file ",ex);
+        }
+    }
+
+    private String readGitInfo() {
+        try {
+            return ClassPathUtils.readStream(new URL("file://git.properties"), is -> {
+                try {
+                    byte[] content = FileUtil.readFileContents(is);
+                    String gitInfo = new String(content, StandardCharsets.UTF_8);
+                    return gitInfo;
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.warn("Unable to read file git.properties "+e.getMessage());
+            return "";
         }
     }
 }
