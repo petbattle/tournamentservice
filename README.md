@@ -31,7 +31,7 @@ http://localhost:8080/tournament/leaderboard/af5f24cc-20ec-4086-9755-111c8da8b52
 
 ## Using helm and OpenShift
 
-Prerequisites
+###Prerequisites
 - oc login to OCP4 cluster with cluster-admin user
 
 Deploy the cert-util operator (deploy this only once for the whole cluster)
@@ -50,10 +50,16 @@ oc -n ${CERTUTILS_NAMESPACE} wait --for condition=available --timeout=120s deplo
 Deploy the tournament service application and dependant infrastructure apps (datagrid,keycloak,mongodb) from this codebase
 ```bash
 oc new-project pet-battle-tournament
-helm template my chart/ | oc apply -f- -n pet-battle-tournament
+helm template dabook chart/ | oc apply -f- -n pet-battle-tournament
 ```
 
-OR deploy applications straight from the chart repository
+###And to change a default helm value
+```bash
+helm template dabook chart/ --set image_version=gha-noc-git-info | oc apply -f- -n pet-battle-tournament 
+```
+
+##OR 
+deploy applications straight from the chart repository
 ```bash
 oc new-project pet-battle-tournament
 helm repo add petbattle https://petbattle.github.io/helm-charts
@@ -65,8 +71,17 @@ rm -f pet-battle-tournament-${chart_version}.tgz
 oc -n pet-battle-tournament  wait --for condition=available --timeout=120s deploymentconfig/my-pet-battle-tournament
 ```
 
-And to delete
+##And to delete
 ```bash
 helm template my chart/ | oc delete -f- -n pet-battle-tournament
 oc delete csv datagrid-operator.v8.1.1 keycloak-operator.v11.0.0
+```
+
+##Useful Links
+```bash
+http://hostname/metrics
+http://hostname/swagger-ui/
+http://hostname/health
+http://hostname/openapi
+http://hostname/health-ui/
 ```

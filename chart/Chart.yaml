@@ -2,8 +2,8 @@ apiVersion: v2
 name: pet-battle-tournament
 description: A Helm chart for Kubernetes
 type: application
-version: 1.0.0
-appVersion: 1.0.0
+version: gha-noc-git-info
+appVersion: gha-noc-git-info
 home: https://petbattle.github.io/helm-charts
 maintainers:
 - name: eformat
