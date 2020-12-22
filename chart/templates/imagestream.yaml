@@ -7,9 +7,11 @@ metadata:
     {{- include "pet-battle-tournament.labels" . | nindent 4 }}
   creationTimestamp: null
 spec:
+  lookupPolicy:
+    local: true
   tags:
     - annotations:
-        openshift.io/imported-from: eformat/pet-battle-tournament
+        openshift.io/imported-from: petbattle/pet-battle-tournament
       from:
         kind: DockerImage
         name: {{ .Values.image_repository }}/{{ .Values.image_namespace }}/{{ .Values.image_name }}:{{ .Values.image_version }}

@@ -20,6 +20,7 @@ metadata:
   name: pbkeycloak
   labels:
     app: pbkeycloak
+    {{- include "pet-battle-tournament.labels" . | nindent 4 }}
 spec:
   instances: 1
   externalAccess:
@@ -40,7 +41,15 @@ spec:
     clientId: pbclient
     bearerOnly: false
     protocol: openid-connect
+    ########################################################
+    #TODO : These URLs need to be changed before deployment#
+    # The second url is only used for testing              #
+    ########################################################
     rootUrl: https://www.keycloak.org/app/
+    redirectUris:
+        - "https://www.keycloak.org/app/*"
+        - "http://localhost:3000/*"
+    ########################################################
     standardFlowEnabled: true
     serviceAccountsEnabled: true
     directAccessGrantsEnabled: true

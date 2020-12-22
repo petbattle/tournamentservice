@@ -42,8 +42,10 @@ Create chart name and version as used by the chart label.
 {{/*
 Common labels
 */}}
+
 {{- define "pet-battle-tournament.labels" -}}
 helm.sh/chart: {{ include "pet-battle-tournament.chart" . }}
+app.kubernetes.io/part-of: petbattleworld
 {{ include "pet-battle-tournament.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
@@ -58,16 +60,18 @@ helm.sh/chart: {{ include "pet-battle-tournament.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/part-of: petbattleworld
 {{- end -}}
 
 {{/*
 Selector labels
 */}}
+
+
 {{- define "pet-battle-tournament.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "pet-battle-tournament.name" . }}
 app.kubernetes.io/component: {{ include "pet-battle-tournament.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-deploymentconfig: {{ include "pet-battle-tournament.fullname" . }}
 {{- end -}}
 
 {{- define "mongodb.selectorLabels" -}}

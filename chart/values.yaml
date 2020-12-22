@@ -1,6 +1,7 @@
 # OpenShift objects
 route: true
-deploymentConfig: true
+# Deployment(True) or DeploymentConfig (False)
+deployment: false
 serviceMonitor: true
 replicas: 1
 image_repository: quay.io
@@ -28,4 +29,4 @@ infinispan:
 istio:
   enabled: false
   mtls: true
-  domain: apps.hivec.sandbox209.opentlc.com
+  domain: 
