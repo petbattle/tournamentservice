@@ -1,12 +1,9 @@
 package com.petbattle.services;
 
 
-import io.quarkus.banner.BannerConfig;
 import io.quarkus.deployment.util.FileUtil;
-import io.quarkus.infinispan.client.runtime.InfinispanClientRuntimeConfig;
 import io.quarkus.runtime.StartupEvent;
-import io.vertx.core.Vertx;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
+import io.quarkus.runtime.util.ClassPathUtils;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;
@@ -17,25 +14,17 @@ import org.infinispan.client.hotrod.event.ClientCacheEntryCreatedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryModifiedEvent;
 import org.infinispan.client.hotrod.event.ClientCacheEntryRemovedEvent;
 import org.infinispan.commons.configuration.XMLStringConfiguration;
-import org.mvel2.util.Make;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
-import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Scanner;
-
-import io.quarkus.runtime.util.ClassPathUtils;
 
 /**
  * Service to cleanup and load application data
@@ -92,7 +81,7 @@ public class ServiceInit {
         try {
             readGitInfo();
         } catch (Exception ex) {
-            LOGGER.warn("GITINFO -> Unable to get git.properties file ",ex);
+            LOGGER.warn("GITINFO -> Error reading git.properties file ",ex);
         }
     }
 
