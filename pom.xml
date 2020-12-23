@@ -207,6 +207,7 @@
                         <includeOnlyProperty>^git.commit.message.(abbrev|full)$</includeOnlyProperty>
                         <includeOnlyProperty>^git.remote.origin.url</includeOnlyProperty>
                         <includeOnlyProperty>^git.tags</includeOnlyProperty>
+                        <includeOnlyProperty>^git.branch</includeOnlyProperty>
                     </includeOnlyProperties>
                     <commitIdGenerationMode>full</commitIdGenerationMode>
                 </configuration>
