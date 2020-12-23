@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          ref: ${GITHUB_REF##*/}
+          ref: ${GITHUB_REF}
       - uses: actions/setup-java@v1
         with:
           java-version: '11.0.7'
