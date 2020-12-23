@@ -13,11 +13,8 @@ jobs:
         with:
           java-version: '11.0.7'
           architecture: x64
-      - uses: nelonoel/branch-name@v1
       - run: mvn -B package --file pom.xml
       - run: echo "${{ secrets.REPO_TOKEN }}" | docker login https://quay.io -u ${{ secrets.REPO_USER }} --password-stdin
       - run: docker build . --file ./src/main/docker/Dockerfile.jvm --tag petbattle
       - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
       - run: docker push quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
-
-      
