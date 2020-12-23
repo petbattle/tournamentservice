@@ -9,5 +9,5 @@ metadata:
   name: pet-battle-tournament-vvwql
 spec:
   targetNamespaces:
-    - pet-battle-tournament
+    {{- toYaml .Values.operatorgroup.targetNamespaces | nindent 4 }}
 {{- end }}

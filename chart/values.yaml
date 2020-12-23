@@ -30,3 +30,7 @@ istio:
   enabled: false
   mtls: true
   domain: 
+# operatorgroup
+operatorgroup:
+  targetNamespaces:
+    - pet-battle-tournament
