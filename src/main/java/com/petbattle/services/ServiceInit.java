@@ -75,29 +75,4 @@ public class ServiceInit {
             LOGGER.info("Someone has removed an entry: " + e);
         }
     }
-
-    public void printGitInfo() {
-        try {
-            readGitInfo();
-        } catch (Exception ex) {
-            LOGGER.warn("GITINFO -> Error reading git.properties file ",ex);
-        }
-    }
-
-    private String readGitInfo() {
-        try {
-            return ClassPathUtils.readStream(new URL("file://git.properties"), is -> {
-                try {
-                    byte[] content = FileUtil.readFileContents(is);
-                    String gitInfo = new String(content, StandardCharsets.UTF_8);
-                    return gitInfo;
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
-        } catch (IOException e) {
-            LOGGER.warn("Unable to read file git.properties "+e.getMessage());
-            return "";
-        }
-    }
 }

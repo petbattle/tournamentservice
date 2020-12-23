@@ -7,6 +7,9 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import java.io.InputStream;
 import java.util.Properties;
 
+import java.io.InputStream;
+import java.util.Properties;
+
 @QuarkusMain  
 public class Main {
     public static void main(String... args) {
