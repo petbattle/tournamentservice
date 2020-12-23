@@ -16,6 +16,8 @@ apiVersion: infinispan.org/v1
 kind: Infinispan
 metadata:
   name: infinispan
+  labels:
+        {{- include "pet-battle-tournament.labels" . | nindent 4 }}
 spec:
   replicas: 1
   service:
@@ -40,4 +42,41 @@ stringData:
       password: password
     - username: operator
       password: password
+---
+apiVersion: v1
+stringData:
+  username: developer
+  password: password
+kind: Secret
+metadata:
+  name: infinispan-metrics-basic-auth
+type: Opaque
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    {{- include "pet-battle-tournament.labels" . | nindent 4 }}
+  name: infinispan-monitoring
+spec:
+  endpoints:
+    - targetPort: 11222
+      path: /metrics
+      honorLabels: true
+      basicAuth:
+        username:
+          key: username
+          name: infinispan-metrics-basic-auth
+        password:
+          key: password
+          name: infinispan-metrics-basic-auth
+      interval: 30s
+      scrapeTimeout: 10s
+      scheme: https
+      tlsConfig:
+        insecureSkipVerify: true
+        serverName: infinispan
+  selector:
+    matchLabels:
+      clusterName: infinispan
 {{- end }}

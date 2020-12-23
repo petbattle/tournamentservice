@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.ref }}
       - uses: actions/setup-java@v1
         with:
           java-version: '11.0.7'
@@ -14,8 +16,8 @@ jobs:
       - uses: nelonoel/branch-name@v1
       - run: mvn -B package --file pom.xml
       - run: echo "${{ secrets.REPO_TOKEN }}" | docker login https://quay.io -u ${{ secrets.REPO_USER }} --password-stdin
-      - run: docker build . --file ./src/main/resources/Dockerfile --tag petbattle
-      - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:gha-${BRANCH_NAME}
-      - run: docker push quay.io/petbattle/pet-battle-tournament:gha-${BRANCH_NAME}
+      - run: docker build . --file ./src/main/docker/Dockerfile.jvm --tag petbattle
+      - run: docker tag petbattle quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
+      - run: docker push quay.io/petbattle/pet-battle-tournament:gha-${GITHUB_REF##*/}
 
       
