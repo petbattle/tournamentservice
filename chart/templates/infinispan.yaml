@@ -10,7 +10,7 @@ spec:
   name: datagrid
   source: redhat-operators
   sourceNamespace: openshift-marketplace
-  startingCSV: datagrid-operator.v8.1.1
+  startingCSV: datagrid-operator.v8.1.2
 ---
 apiVersion: infinispan.org/v1
 kind: Infinispan
