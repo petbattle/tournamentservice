@@ -118,7 +118,6 @@ spec:
             - mountPath: /deployments/config/
               name: javatruststorevol
               readOnly: true
-              subPath: ""    
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
