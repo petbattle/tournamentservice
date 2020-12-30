@@ -13,11 +13,7 @@ You can run your application in dev mode that enables live coding using:
 
 ## Integration Testing
 
-[1] Startup a mongodb server on localhost:27017 
-```
-e.g. mongod -vvv --dbpath=<some location>
-```
-[2] Run the integration test via maven
+Run the integration tests via maven and _Test Containers_
 ```
 mvn verify -Pintegration
 ```
