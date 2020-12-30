@@ -1,9 +1,7 @@
 package com.petbattle.services;
 
 
-import io.quarkus.deployment.util.FileUtil;
 import io.quarkus.runtime.StartupEvent;
-import io.quarkus.runtime.util.ClassPathUtils;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.annotation.ClientCacheEntryCreated;
@@ -21,10 +19,6 @@ import javax.annotation.Priority;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Service to cleanup and load application data
