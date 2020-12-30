@@ -25,6 +25,8 @@ keycloak:
 # datagrid
 infinispan:
   enabled: true
+  service: infinispan
+  realm: default
 # service mesh
 istio:
   enabled: false
