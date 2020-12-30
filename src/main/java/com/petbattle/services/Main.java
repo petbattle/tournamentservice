@@ -1,8 +1,8 @@
 package com.petbattle.services;
 
+import io.quarkus.runtime.Quarkus;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
-import io.quarkus.runtime.Quarkus;
 
 import java.io.InputStream;
 import java.util.Properties;
