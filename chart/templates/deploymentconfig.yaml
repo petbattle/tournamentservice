@@ -43,11 +43,11 @@ spec:
         - env:
             - name: JAVA_OPTIONS
               value: -Dquarkus.infinispan-client.trust-store=/deployments/config/truststore.jks -Djavax.net.ssl.trustStore=/deployments/config/truststore.jks -Djavax.net.ssl.trustStorePassword={{ .Values.jkspassword }}
-            - name: oidcvar
+            - name: OIDCVAR
               valueFrom:
                 secretKeyRef:
-                  key: OIDCVAR
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+                  key: CLIENT_SECRET
+                  name: keycloak-client-secret-pbclient
             {{- if .Values.mongodbTemplate.enabled }}
             - name: DATABASE_ADMIN_PASSWORD
               valueFrom:
@@ -76,30 +76,21 @@ spec:
             {{- end }}
             {{- if .Values.infinispan.enabled }}
             - name: INFINISPAN_SERVICE_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_SERVICE_HOST
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+              value: {{.Values.infinispan.service }}
             - name: INFINISPAN_SERVICE_PORT
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_SERVICE_PORT
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+              value: '11222'
             - name: INFINISPAN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_PASSWORD
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+                  name: {{ include "pet-battle-tournament.fullname" . }}-infinispan-auth
             - name: INFINISPAN_REALM
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_REALM
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+              value: {{.Values.infinispan.realm }}
             - name: INFINISPAN_USER
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_USER
-                  name: {{ include "pet-battle-tournament.fullname" . }}
+                  name: {{ include "pet-battle-tournament.fullname" . }}-infinispan-auth
             {{- end }}
             - name: QUARKUS_PROFILE
               value: prod
@@ -116,19 +107,29 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /deployments/config/
-              name: javatruststorevol
+              name: javatruststore
               readOnly: true
-              subPath: ""    
+              subPath: ""
+            - mountPath: /tmp/secrets/keycloak
+              name: pbsecretkeycloak
+              readOnly: true
+              subPath: ""
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
-        - configMap:
-            defaultMode: 384
-            name: java-truststore
-          name: javatruststorevol
+          - name: pbsecretkeycloak
+            secret:
+              defaultMode: 384
+              optional: false
+              secretName: keycloak-client-secret-pbclient
+          - configMap:
+              defaultMode: 384
+              name: java-truststore
+              optional: false
+            name: javatruststore
   test: false
   triggers:
     - type: ConfigChange
