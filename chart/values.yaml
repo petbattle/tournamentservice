@@ -2,13 +2,23 @@
 route: true
 # Deployment(True) or DeploymentConfig (False)
 deployment: false
-serviceMonitor: true
+
 replicas: 1
 image_repository: quay.io
 image_name: pet-battle-tournament
 image_namespace: petbattle
 image_version: latest
 jkspassword: jkspassword
+
+operatorgroup:
+    enabled: false
+
+serviceMonitor:
+    enabled: true
+
+grafana:
+    enabled: true
+
 # mongodb
 mongodbTemplate:
   enabled: true
@@ -19,18 +29,21 @@ mongodbTemplate:
     password: password
   image: mongodb:3.6
   storage: 1Gi
+
 # keycloak
 keycloak:
   enabled: true
+
 # datagrid
 infinispan:
   enabled: true
   service: infinispan
   realm: default
+
 # service mesh
 istio:
   enabled: false
-  mtls: true
+  mtls: false
   domain: 
 # operatorgroup
 operatorgroup:
