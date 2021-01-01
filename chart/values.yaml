@@ -10,15 +10,15 @@ image_namespace: petbattle
 image_version: latest
 jkspassword: jkspassword
 
-
-operatorgroup:
-    enabled: false
-
 serviceMonitor:
     enabled: true
+    #True to enable user workload monitoring (only if not already enabled - requires cluster admin priv)
+    enableUserWorkloadMonitoring: false
 
 grafana:
     enabled: true
+    admin_user: root
+    admin_password: secret
 
 # mongodb
 mongodbTemplate:
@@ -48,8 +48,10 @@ infinispan:
 istio:
   enabled: false
   mtls: false
-  domain: 
+  domain:
+
 # operatorgroup
 operatorgroup:
+  enabled: false
   targetNamespaces:
     - pet-battle-tournament

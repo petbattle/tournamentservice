@@ -56,8 +56,8 @@ stringData:
 ---
 apiVersion: v1
 stringData:
-  username: developer
-  password: password
+  username: {{ .Values.infinispan.infinispanuser }}
+  password: {{ .Values.infinispan.infinispandevpwd }}
 kind: Secret
 metadata:
   name: infinispan-metrics-basic-auth
