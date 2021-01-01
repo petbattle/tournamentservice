@@ -28,12 +28,12 @@ spec:
         expose:
           type: LoadBalancer
   security:
-    endpointSecretName: connect-secret
+    endpointSecretName: infinispan-connect-secret
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: connect-secret
+  name: infinispan-connect-secret
 type: Opaque
 stringData:
   identities.yaml: |-
