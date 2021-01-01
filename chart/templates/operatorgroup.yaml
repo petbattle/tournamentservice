@@ -1,4 +1,4 @@
-{{- if and (eq .Values.grafana.enabled true) (eq .Values.keycloak.enabled true) (eq .Values.operatorgroup.enabled true) }}
+{{- if .Values.operatorgroup.enabled }}
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup

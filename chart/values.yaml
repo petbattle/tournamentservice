@@ -10,6 +10,7 @@ image_namespace: petbattle
 image_version: latest
 jkspassword: jkspassword
 
+
 operatorgroup:
     enabled: false
 
@@ -39,6 +40,9 @@ infinispan:
   enabled: true
   service: infinispan
   realm: default
+  infinispandevpwd: password
+  infinispanoppwd: password
+  infinispanuser: developer
 
 # service mesh
 istio:
