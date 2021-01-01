@@ -11,14 +11,10 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
+import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
-import org.eclipse.microprofile.openapi.annotations.info.Contact;
-import org.eclipse.microprofile.openapi.annotations.info.Info;
-import org.eclipse.microprofile.openapi.annotations.info.License;
-import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,21 +27,7 @@ import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 
-@OpenAPIDefinition(
-        tags = {
-                @Tag(name = "tournament", description = "tournament operations."),
-        },
-        info = @Info(
-                title = "Tournament API",
-                version = "1.0.1",
-                contact = @Contact(
-                        name = "Tournament API Support",
-                        url = "http://petbattle.com/contact",
-                        email = "techsupport@petbattle.com"),
-                license = @License(
-                        name = "Apache 2.0",
-                        url = "http://www.apache.org/licenses/LICENSE-2.0.html"))
-)
+
 @Path("/api/tournament")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -74,6 +56,7 @@ public class TournamentAPI {
     @POST
     @RolesAllowed("pbadmin")
     @Timed
+    @Operation(summary = "Create a new tournament or return the existing tournament")
     public Uni<JsonObject> createTournament() {
         log.info("Creating tournament");
         return bus.<JsonObject>request("CreateTournament", "")
@@ -85,6 +68,7 @@ public class TournamentAPI {
     @Path("{id}")
     @RolesAllowed("pbplayer")
     @Timed
+    @Operation(summary = "Return Tournament Status")
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
 
@@ -121,6 +105,7 @@ public class TournamentAPI {
     @Path("{id}")
     @RolesAllowed("pbadmin")
     @Timed
+    @Operation(summary = "Start a tournament")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
         return bus.<JsonObject>request("StartTournament", tournamentID)
@@ -132,6 +117,7 @@ public class TournamentAPI {
     @Path("{id}")
     @RolesAllowed("pbadmin")
     @Timed
+    @Operation(summary = "Stop a tournament")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
         return bus.<JsonObject>request("StopTournament", tournamentID)
@@ -142,6 +128,7 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}/cancel")
     @RolesAllowed("pbadmin")
+    @Operation(summary = "Cancel a tournament")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         registry.counter("TournamentCancelled", Tags.empty()).increment();
@@ -152,6 +139,7 @@ public class TournamentAPI {
     @Path("{id}/add/{petId}")
     @RolesAllowed("pbadmin")
     @Timed
+    @Operation(summary = "Add a pet to a tournament")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
         JsonObject params = new JsonObject();
@@ -166,6 +154,7 @@ public class TournamentAPI {
     @Path("{id}/vote/{petId}")
     @RolesAllowed("pbplayer")
     @Timed
+    @Operation(summary = "Vote for a pet in a tournament")
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
@@ -187,6 +176,7 @@ public class TournamentAPI {
     @Path("{id}/votes/{petId}")
     @RolesAllowed("pbplayer")
     @Timed
+    @Operation(summary = "Return the number of votes for a pet in a tournament")
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
         JsonObject params = new JsonObject();
@@ -205,6 +195,7 @@ public class TournamentAPI {
     @Path("leaderboard/{id}")
     @RolesAllowed("pbplayer")
     @Timed
+    @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
         registry.counter("Getleaderboard", Tags.of("TID",tournamentID)).increment();
         return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());

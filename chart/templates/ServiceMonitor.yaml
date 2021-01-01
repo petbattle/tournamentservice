@@ -1,4 +1,4 @@
-{{- if .Values.serviceMonitor }}
+{{- if .Values.serviceMonitor.enabled }}
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -14,4 +14,16 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/component: pet-battle-tournament
+
+{{- if .Values.serviceMonitor.enableUserWorkloadMonitoring }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-monitoring-config
+  namespace: openshift-monitoring
+data:
+  config.yaml: |
+    enableUserWorkload: true
+{{- end }}
+
 {{- end }}

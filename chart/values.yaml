@@ -2,13 +2,24 @@
 route: true
 # Deployment(True) or DeploymentConfig (False)
 deployment: false
-serviceMonitor: true
+
 replicas: 1
 image_repository: quay.io
 image_name: pet-battle-tournament
 image_namespace: petbattle
 image_version: latest
 jkspassword: jkspassword
+
+serviceMonitor:
+    enabled: true
+    #True to enable user workload monitoring (only if not already enabled - requires cluster admin priv)
+    enableUserWorkloadMonitoring: false
+
+grafana:
+    enabled: true
+    admin_user: root
+    admin_password: secret
+
 # mongodb
 mongodbTemplate:
   enabled: true
@@ -19,18 +30,28 @@ mongodbTemplate:
     password: password
   image: mongodb:3.6
   storage: 1Gi
+
 # keycloak
 keycloak:
   enabled: true
+
 # datagrid
 infinispan:
   enabled: true
+  service: infinispan
+  realm: default
+  infinispandevpwd: password
+  infinispanoppwd: password
+  infinispanuser: developer
+
 # service mesh
 istio:
   enabled: false
-  mtls: true
-  domain: 
+  mtls: false
+  domain:
+
 # operatorgroup
 operatorgroup:
+  enabled: false
   targetNamespaces:
     - pet-battle-tournament

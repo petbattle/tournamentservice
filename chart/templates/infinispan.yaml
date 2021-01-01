@@ -28,25 +28,36 @@ spec:
         expose:
           type: LoadBalancer
   security:
-    endpointSecretName: connect-secret
+    endpointSecretName: infinispan-connect-secret
+---
+apiVersion: v1
+data:
+  INFINISPAN_USER: {{ .Values.infinispan.infinispanuser | b64enc }}
+  INFINISPAN_PASSWORD: {{ .Values.infinispan.infinispandevpwd | b64enc }}
+kind: Secret
+metadata:
+  name: {{ include "pet-battle-tournament.fullname" . }}-infinispan-auth
+  labels:
+    {{- include "pet-battle-tournament.labels" . | nindent 4 }}
+type: Opaque
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: connect-secret
+  name: infinispan-connect-secret
 type: Opaque
 stringData:
   identities.yaml: |-
     credentials:
     - username: developer
-      password: password
+      password: {{ .Values.infinispan.infinispandevpwd }}
     - username: operator
-      password: password
+      password: {{ .Values.infinispan.infinispanoppwd }}
 ---
 apiVersion: v1
 stringData:
-  username: developer
-  password: password
+  username: {{ .Values.infinispan.infinispanuser }}
+  password: {{ .Values.infinispan.infinispandevpwd }}
 kind: Secret
 metadata:
   name: infinispan-metrics-basic-auth

@@ -1,13 +1,10 @@
-{{- if and (eq .Values.infinispan.enabled true) (eq .Values.keycloak.enabled true) }}
+{{- if .Values.operatorgroup.enabled }}
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
 metadata:
-  annotations:
-    olm.providedAPIs: Backup.v2alpha1.infinispan.org,Cache.v2alpha1.infinispan.org,Infinispan.v1.infinispan.org,Restore.v2alpha1.infinispan.org,Keycloak.v1alpha1.keycloak.org,KeycloakBackup.v1alpha1.keycloak.org,KeycloakClient.v1alpha1.keycloak.org,KeycloakRealm.v1alpha1.keycloak.org,KeycloakUser.v1alpha1.keycloak.org
-  generateName: pet-battle-tournament-
-  name: pet-battle-tournament-vvwql
+  name: pet-battle-tournament
 spec:
   targetNamespaces:
-    {{- toYaml .Values.operatorgroup.targetNamespaces | nindent 4 }}
+    - {{ .Release.Namespace }}
 {{- end }}

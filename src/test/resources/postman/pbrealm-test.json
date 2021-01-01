@@ -1,0 +1,1352 @@
+{
+	"info": {
+		"_postman_id": "ef1913a1-9c40-4016-9937-27d16d95227f",
+		"name": "PetBattleTournamentAPIIntegration",
+		"description": "Pet Battle Tournament API\n\nContact Support:\n Name: PetBattle API Support\n Email: apisupport@petbattle.com",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "api/tournament",
+			"item": [
+				{
+					"name": "{id}",
+					"item": [
+						{
+							"name": "/api/tournament/:id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id"
+									],
+									"variable": [
+										{
+											"id": "bc862527-9719-46a7-9c2a-8302ce0972dd",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[]"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id"
+									],
+									"variable": [
+										{
+											"id": "919afcaf-0f3f-4192-bcf7-06d64833aa4d",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "PUT",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id"
+									],
+									"variable": [
+										{
+											"id": "a78bfbb4-c838-4068-85c3-a42b151943d8",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id/add/:petId",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"add",
+										":petId"
+									],
+									"variable": [
+										{
+											"id": "d7df21af-8390-4f58-b285-cab7d49845a3",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										},
+										{
+											"id": "5d291e8a-49c4-4113-ac1f-7f35dd77b649",
+											"key": "petId",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"add",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id/cancel",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/cancel",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"cancel"
+									],
+									"variable": [
+										{
+											"id": "e951615b-0b37-413e-8bc9-060a12b6d3d9",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "No Content",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/cancel",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"cancel"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "No Content",
+									"code": 204,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/plain"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id/leaderboard",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/leaderboard",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"leaderboard"
+									],
+									"variable": [
+										{
+											"id": "e58f5d1b-aa9a-4d33-ab6f-a9098984fe0c",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/leaderboard",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"leaderboard"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[\n {\n  \"downVotes\": -13953177,\n  \"petId\": \"labore non\",\n  \"upVotes\": 59078569\n },\n {\n  \"downVotes\": 86953486,\n  \"petId\": \"moll\",\n  \"upVotes\": 45303980\n }\n]"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id/votes/:petId",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/votes/:petId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"votes",
+										":petId"
+									],
+									"variable": [
+										{
+											"id": "e0da9a97-d1ae-4aba-928f-bd2dec42ae67",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										},
+										{
+											"id": "c7c7271d-db18-40e3-8d28-b675ed9c1bac",
+											"key": "petId",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/votes/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"votes",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"allowedMethods\": [\n  \"sit\",\n  \"dolor id\"\n ],\n \"cookies\": {},\n \"date\": \"1985-04-16\",\n \"entity\": {},\n \"entityTag\": {\n  \"value\": \"elit nulla ullamco ad\",\n  \"weak\": false\n },\n \"headers\": {},\n \"language\": {\n  \"country\": \"paria\",\n  \"displayCountry\": \"sint nisi consectetur dolor\",\n  \"displayLanguage\": \"voluptate exercitation\",\n  \"displayName\": \"dolore dolor\",\n  \"displayScript\": \"incididunt laboris\",\n  \"displayVariant\": \"sunt minim\",\n  \"extensionKeys\": [\n   \"commodo laborum aliquip dolor\",\n   \"mo\"\n  ],\n  \"iSO3Country\": \"Ut amet\",\n  \"iSO3Language\": \"deserunt labore eu aliquip\",\n  \"language\": \"ut eiusmod\",\n  \"script\": \"aliqua amet quis est anim\",\n  \"unicodeLocaleAttributes\": [\n   \"laborum eu ea incididunt cupi\",\n   \"velit sint\"\n  ],\n  \"unicodeLocaleKeys\": [\n   \"dol\",\n   \"officia labore id\"\n  ],\n  \"variant\": \"nisi voluptate Lorem magna exercitation\"\n },\n \"lastModified\": \"1996-04-02\",\n \"length\": -59171754,\n \"links\": [\n  {\n   \"params\": {},\n   \"rel\": \"Ut sit dolore Excepteur ullamco\",\n   \"rels\": [\n    \"occaecat esse laboris\",\n    \"pariatur laboris in enim\"\n   ],\n   \"title\": \"magna ipsum\",\n   \"type\": \"amet sint deserunt do offi\",\n   \"uri\": \"https://wyEkZjwflykEeHtFZseKutHwOjIzmtUJ.wjqX2hpBtPbuCUfBLWlJY.GgndBhuRHi0UhDVhFZhY,mEnPN+Zegq\",\n   \"uriBuilder\": {}\n  },\n  {\n   \"params\": {},\n   \"rel\": \"anim\",\n   \"rels\": [\n    \"ipsum tempor\",\n    \"ullamco esse dolore\"\n   ],\n   \"title\": \"eu cillum\",\n   \"type\": \"do in in\",\n   \"uri\": \"http://EVPXItngeHahxHQjwTwyoH.zkmyniY1LD1WoOgOTfBYLR1LdMBhhYcpk9GEkEIma\",\n   \"uriBuilder\": {}\n  }\n ],\n \"location\": \"http://sTHTKOJwQczFmyrauKqydlqrRoQ.nhyshHxmx8yIFx+EMChwlV903hdH3VDrdonAVq+2zi7E11jpb-g251ehy22-+HdB95Yl5q2PsFowKKC2\",\n \"mediaType\": {\n  \"parameters\": {},\n  \"subtype\": \"sit\",\n  \"type\": \"exerc\",\n  \"wildcardSubtype\": false,\n  \"wildcardType\": true\n },\n \"metadata\": {},\n \"status\": 25832613,\n \"statusInfo\": {\n  \"family\": \"INFORMATIONAL\",\n  \"reasonPhrase\": \"mollit dolore\",\n  \"statusCode\": -17889338\n },\n \"stringHeaders\": {}\n}"
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/leaderboard/:id",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/leaderboard/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										"leaderboard",
+										":id"
+									],
+									"variable": [
+										{
+											"id": "d7959f49-43a3-40d9-bb76-a89de3315e00",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/leaderboard/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												"leaderboard",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "text",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "text/html"
+										}
+									],
+									"cookie": [],
+									"body": ""
+								}
+							]
+						},
+						{
+							"name": "/api/tournament/:id/vote/:petId",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/vote/:petId?dir=<string>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"vote",
+										":petId"
+									],
+									"query": [
+										{
+											"key": "dir",
+											"value": "<string>",
+											"description": "(Required) "
+										}
+									],
+									"variable": [
+										{
+											"id": "bcf56f00-3cd7-422b-b2fa-3ff4a9024a68",
+											"key": "id",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										},
+										{
+											"id": "925a77ac-dfaf-4b32-8e3e-c3648e1c2f68",
+											"key": "petId",
+											"value": "<string>",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/vote/:petId?dir=<string>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"vote",
+												":petId"
+											],
+											"query": [
+												{
+													"key": "dir",
+													"value": "<string>"
+												}
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n \"allowedMethods\": [\n  \"sit\",\n  \"dolor id\"\n ],\n \"cookies\": {},\n \"date\": \"1985-04-16\",\n \"entity\": {},\n \"entityTag\": {\n  \"value\": \"elit nulla ullamco ad\",\n  \"weak\": false\n },\n \"headers\": {},\n \"language\": {\n  \"country\": \"paria\",\n  \"displayCountry\": \"sint nisi consectetur dolor\",\n  \"displayLanguage\": \"voluptate exercitation\",\n  \"displayName\": \"dolore dolor\",\n  \"displayScript\": \"incididunt laboris\",\n  \"displayVariant\": \"sunt minim\",\n  \"extensionKeys\": [\n   \"commodo laborum aliquip dolor\",\n   \"mo\"\n  ],\n  \"iSO3Country\": \"Ut amet\",\n  \"iSO3Language\": \"deserunt labore eu aliquip\",\n  \"language\": \"ut eiusmod\",\n  \"script\": \"aliqua amet quis est anim\",\n  \"unicodeLocaleAttributes\": [\n   \"laborum eu ea incididunt cupi\",\n   \"velit sint\"\n  ],\n  \"unicodeLocaleKeys\": [\n   \"dol\",\n   \"officia labore id\"\n  ],\n  \"variant\": \"nisi voluptate Lorem magna exercitation\"\n },\n \"lastModified\": \"1996-04-02\",\n \"length\": -59171754,\n \"links\": [\n  {\n   \"params\": {},\n   \"rel\": \"Ut sit dolore Excepteur ullamco\",\n   \"rels\": [\n    \"occaecat esse laboris\",\n    \"pariatur laboris in enim\"\n   ],\n   \"title\": \"magna ipsum\",\n   \"type\": \"amet sint deserunt do offi\",\n   \"uri\": \"https://wyEkZjwflykEeHtFZseKutHwOjIzmtUJ.wjqX2hpBtPbuCUfBLWlJY.GgndBhuRHi0UhDVhFZhY,mEnPN+Zegq\",\n   \"uriBuilder\": {}\n  },\n  {\n   \"params\": {},\n   \"rel\": \"anim\",\n   \"rels\": [\n    \"ipsum tempor\",\n    \"ullamco esse dolore\"\n   ],\n   \"title\": \"eu cillum\",\n   \"type\": \"do in in\",\n   \"uri\": \"http://EVPXItngeHahxHQjwTwyoH.zkmyniY1LD1WoOgOTfBYLR1LdMBhhYcpk9GEkEIma\",\n   \"uriBuilder\": {}\n  }\n ],\n \"location\": \"http://sTHTKOJwQczFmyrauKqydlqrRoQ.nhyshHxmx8yIFx+EMChwlV903hdH3VDrdonAVq+2zi7E11jpb-g251ehy22-+HdB95Yl5q2PsFowKKC2\",\n \"mediaType\": {\n  \"parameters\": {},\n  \"subtype\": \"sit\",\n  \"type\": \"exerc\",\n  \"wildcardSubtype\": false,\n  \"wildcardType\": true\n },\n \"metadata\": {},\n \"status\": 25832613,\n \"statusInfo\": {\n  \"family\": \"INFORMATIONAL\",\n  \"reasonPhrase\": \"mollit dolore\",\n  \"statusCode\": -17889338\n },\n \"stringHeaders\": {}\n}"
+								}
+							]
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				},
+				{
+					"name": "Initial Basic Run",
+					"item": [
+						{
+							"name": "Get Access Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "678af247-76b0-4571-aa4d-00dd1cdf14bb",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"postman.setEnvironmentVariable(\"refresh_token\", jsonData.refresh_token);",
+											"postman.setEnvironmentVariable(\"access_token\", jsonData.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "username",
+											"value": "{{USERNAME}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{PASSWORD}}",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{CLIENTID}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{CLIENT_SECRET}}",
+											"type": "text"
+										},
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										}
+									],
+									"options": {
+										"urlencoded": {}
+									}
+								},
+								"url": {
+									"raw": "https://{{KEYCLOAKHOST}}/auth/realms/{{REALM}}/protocol/openid-connect/token",
+									"protocol": "https",
+									"host": [
+										"{{KEYCLOAKHOST}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{REALM}}",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create Tournament",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "19978df4-c8a3-43b3-9775-21b4fb62936e",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"postman.setEnvironmentVariable(\"tournamentID\", jsonData.TournamentID);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[]"
+								}
+							]
+						},
+						{
+							"name": "Delete Existing Tournament",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id"
+									],
+									"variable": [
+										{
+											"description": "(Required) ",
+											"key": "id",
+											"type": "string",
+											"value": "{{tournamentID}}"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "Create Tournament",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "99a62023-01b6-4911-b1cf-e4f8465ace36",
+										"exec": [
+											"var jsonData = JSON.parse(responseBody);",
+											"postman.setEnvironmentVariable(\"tournamentID\", jsonData.TournamentID);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[]"
+								}
+							]
+						},
+						{
+							"name": "Get Tournament State",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id"
+									],
+									"variable": [
+										{
+											"description": "(Required) ",
+											"key": "id",
+											"type": "string",
+											"value": "{{tournamentID}}"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[]"
+								}
+							]
+						},
+						{
+							"name": "Add Pet #1",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"add",
+										":petId"
+									],
+									"variable": [
+										{
+											"description": "(Required) ",
+											"key": "id",
+											"type": "string",
+											"value": "{{tournamentID}}"
+										},
+										{
+											"description": "(Required) ",
+											"key": "petId",
+											"type": "string",
+											"value": "\"123\""
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"add",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "Add Pet #2",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"add",
+										":petId"
+									],
+									"variable": [
+										{
+											"description": "(Required) ",
+											"key": "id",
+											"type": "string",
+											"value": "{{tournamentID}}"
+										},
+										{
+											"description": "(Required) ",
+											"key": "petId",
+											"type": "string",
+											"value": "\"12345567\""
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"add",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "Add Pet #3",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"add",
+										":petId"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "{{tournamentID}}",
+											"type": "string",
+											"description": "(Required) "
+										},
+										{
+											"key": "petId",
+											"value": "\"abceefef\"",
+											"type": "string",
+											"description": "(Required) "
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/add/:petId",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"add",
+												":petId"
+											],
+											"variable": [
+												{
+													"key": "id"
+												},
+												{
+													"key": "petId"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{}"
+								}
+							]
+						},
+						{
+							"name": "Get the leaderboard",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{access_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/tournament/:id/leaderboard",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"tournament",
+										":id",
+										"leaderboard"
+									],
+									"variable": [
+										{
+											"description": "(Required) ",
+											"key": "id",
+											"type": "string",
+											"value": "{{tournamentID}}"
+										}
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "OK",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{baseUrl}}/api/tournament/:id/leaderboard",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"tournament",
+												":id",
+												"leaderboard"
+											],
+											"variable": [
+												{
+													"key": "id"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "[\n {\n  \"downVotes\": -13953177,\n  \"petId\": \"labore non\",\n  \"upVotes\": 59078569\n },\n {\n  \"downVotes\": 86953486,\n  \"petId\": \"moll\",\n  \"upVotes\": 45303980\n }\n]"
+								}
+							]
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{access_token}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ae24736c-1db1-48c7-98de-37596d4b411f",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "797afefa-db97-4bcc-a84f-46c8f2c66294",
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"variable": [
+		{
+			"id": "baseUrl",
+			"key": "baseUrl",
+			"value": "/",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
