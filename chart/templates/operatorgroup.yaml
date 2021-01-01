@@ -6,5 +6,5 @@ metadata:
   name: pet-battle-tournament
 spec:
   targetNamespaces:
-    - {{ .Release.Namespace }}
+    {{- toYaml .Values.operatorgroup.targetNamespaces | nindent 4 }}
 {{- end }}
