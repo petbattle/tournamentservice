@@ -109,11 +109,9 @@ spec:
             - mountPath: /deployments/config/
               name: javatruststore
               readOnly: true
-              subPath: ""
             - mountPath: /tmp/secrets/keycloak
               name: pbsecretkeycloak
               readOnly: true
-              subPath: ""
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
