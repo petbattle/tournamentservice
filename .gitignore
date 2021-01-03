@@ -41,3 +41,4 @@ pom.xml.versionsBackup
 release.properties
 
 *.tgz
+*.lock

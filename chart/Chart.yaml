@@ -2,9 +2,20 @@ apiVersion: v2
 name: pet-battle-tournament
 description: A Helm chart for Kubernetes
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: 1.0.0
 home: https://petbattle.github.io/helm-charts
 maintainers:
 - name: eformat
 - name: noelo
+dependencies:
+  - name: pet-battle-infra
+    version: "1.0.0"
+    repository: "https://petbattle.github.io/helm-charts"
+    import-values:
+      - child: infinispan
+        parent: infinispan
+    condition: pet-battle-infra.enabled
+    tags:
+      - infra
+      - pet-battle-infra
