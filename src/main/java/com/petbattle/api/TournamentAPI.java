@@ -86,7 +86,6 @@ public class TournamentAPI {
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
 
-
         Uni<String> res = bus.<String>request("GetLeaderboard", tournamentID)
                 .onItem().transform(Message::body);
         registry.counter("TournamentLeaderboard", Tags.empty()).increment();
@@ -193,7 +192,7 @@ public class TournamentAPI {
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
-    @RolesAllowed("pbplayer")
+    //@RolesAllowed("pbplayer") for now as we do not have a login page yet
     @Timed
     @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
