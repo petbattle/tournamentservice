@@ -15,6 +15,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +32,7 @@ import java.util.List;
 
 
 @Path("/api/tournament")
+@SecurityScheme(securitySchemeName = "jwt", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "jwt")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class TournamentAPI {
@@ -55,6 +59,7 @@ public class TournamentAPI {
 
     @POST
     @RolesAllowed("pbadmin")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Create a new tournament or return the existing tournament")
     public Uni<JsonObject> createTournament() {
@@ -67,6 +72,7 @@ public class TournamentAPI {
     @GET
     @Path("{id}")
     @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return Tournament Status")
     public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
@@ -81,7 +87,8 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
-    //@RolesAllowed("pbplayer")
+    //@RolesAllowed("pbplayer") for now as we do not have a login page yet
+    //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
@@ -103,6 +110,7 @@ public class TournamentAPI {
     @PUT
     @Path("{id}")
     @RolesAllowed("pbadmin")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Start a tournament")
     public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
@@ -115,6 +123,7 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}")
     @RolesAllowed("pbadmin")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Stop a tournament")
     public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
@@ -127,6 +136,7 @@ public class TournamentAPI {
     @DELETE
     @Path("{id}/cancel")
     @RolesAllowed("pbadmin")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Operation(summary = "Cancel a tournament")
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
@@ -137,6 +147,7 @@ public class TournamentAPI {
     @POST
     @Path("{id}/add/{petId}")
     @RolesAllowed("pbadmin")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Add a pet to a tournament")
     public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
@@ -152,6 +163,7 @@ public class TournamentAPI {
     @POST
     @Path("{id}/vote/{petId}")
     @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Vote for a pet in a tournament")
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
@@ -174,6 +186,7 @@ public class TournamentAPI {
     @GET
     @Path("{id}/votes/{petId}")
     @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the number of votes for a pet in a tournament")
     public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
@@ -193,6 +206,7 @@ public class TournamentAPI {
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboard/{id}")
     //@RolesAllowed("pbplayer") for now as we do not have a login page yet
+    //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
