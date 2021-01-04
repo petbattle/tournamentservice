@@ -72,27 +72,27 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_SERVICE_HOST
-                  name: {{ include "pet-battle-infra.fullname" . }}
+                  name: infinispan-auth
             - name: INFINISPAN_SERVICE_PORT
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_SERVICE_PORT
-                  name: {{ include "pet-battle-infra.fullname" . }}
+                  name: infinispan-auth
             - name: INFINISPAN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_PASSWORD
-                  name: {{ include "pet-battle-infra.fullname" . }}
+                  name: infinispan-auth
             - name: INFINISPAN_REALM
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_REALM
-                  name: {{ include "pet-battle-infra.fullname" . }}
+                  name: infinispan-auth
             - name: INFINISPAN_USER
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_USER
-                  name: {{ include "pet-battle-infra.fullname" . }}
+                  name: infinispan-auth
             {{- end }}
             - name: QUARKUS_PROFILE
               value: prod

@@ -83,14 +83,14 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_PASSWORD
-                  name: {{ include "pet-battle-tournament.fullname" . }}-infinispan-auth
+                  name: infinispan-auth
             - name: INFINISPAN_REALM
               value: {{.Values.infinispan.realm }}
             - name: INFINISPAN_USER
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_USER
-                  name: {{ include "pet-battle-tournament.fullname" . }}-infinispan-auth
+                  name: infinispan-auth
             {{- end }}
             - name: QUARKUS_PROFILE
               value: prod
