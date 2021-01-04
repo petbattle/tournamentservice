@@ -36,6 +36,10 @@ istio:
 tags:
   infra: true
 
+# override name for values in child
+pet-battle-infra:
+  nameOverride: pet-battle-tournament
+
 # datagrid - we need these here for when infra not enabled using import child chart values
 infinispan:
   enabled: true
