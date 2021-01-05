@@ -69,25 +69,16 @@ spec:
             {{- end }}
             {{- if .Values.infinispan.enabled }}
             - name: INFINISPAN_SERVICE_HOST
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_SERVICE_HOST
-                  name: infinispan-auth
+              value: {{.Values.infinispan.service }}
             - name: INFINISPAN_SERVICE_PORT
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_SERVICE_PORT
-                  name: infinispan-auth
+              value: '11222'
             - name: INFINISPAN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   key: INFINISPAN_PASSWORD
                   name: infinispan-auth
             - name: INFINISPAN_REALM
-              valueFrom:
-                secretKeyRef:
-                  key: INFINISPAN_REALM
-                  name: infinispan-auth
+              value: {{.Values.infinispan.realm }}
             - name: INFINISPAN_USER
               valueFrom:
                 secretKeyRef:
