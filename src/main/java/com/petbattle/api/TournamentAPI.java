@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
@@ -70,6 +71,18 @@ public class TournamentAPI {
     }
 
     @GET
+    //@RolesAllowed("pbplayer")
+    //@SecurityRequirement(name="jwt", scopes = {})
+    @Timed
+    @Operation(summary = "Return the existing tournament")
+    public Uni<JsonObject> getTournament(String name) {
+        log.info("Get tournament");
+        return bus.<JsonObject>request("GetTournament", "")
+                .onItem().invoke(() -> registry.counter("GetTournament", Tags.empty()).increment())
+                .onItem().transform(Message::body);
+    }
+
+    @GET
     @Path("{id}")
     @RolesAllowed("pbplayer")
     @SecurityRequirement(name="jwt", scopes = {})
@@ -87,7 +100,7 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
-    //@RolesAllowed("pbplayer") for now as we do not have a login page yet
+    //@RolesAllowed("pbplayer")
     //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
@@ -204,14 +217,18 @@ public class TournamentAPI {
     @GET
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
-    @Path("leaderboard/{id}")
-    //@RolesAllowed("pbplayer") for now as we do not have a login page yet
+    @Path("leaderboard")
+    //@RolesAllowed("pbplayer")
     //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the leaderboard for a tournament")
-    public TemplateInstance leaderboardUX(@PathParam("id") String tournamentID) {
-        registry.counter("Getleaderboard", Tags.of("TID",tournamentID)).increment();
-        return leaderboard.data("pets", leaderboard(tournamentID).await().indefinitely());
+    public TemplateInstance leaderboardUX() {
+        String tid = getTournament("").await().indefinitely().getString("TournamentID");
+        if (null == tid) {
+            return leaderboard.data("pets", new ArrayList());
+        }
+        registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
+        return leaderboard.data("pets", leaderboard(tid).await().indefinitely());
     }
 
 }

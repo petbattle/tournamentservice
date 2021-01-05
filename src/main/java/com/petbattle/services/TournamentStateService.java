@@ -67,6 +67,17 @@ public class TournamentStateService {
         return Uni.createFrom().item(res);
     }
 
+    @ConsumeEvent("GetTournament")
+    public Uni<JsonObject> getTournament(String name) {
+        log.info("getTournament");
+        JsonObject res = new JsonObject();
+        if (this.currentTournament != null) {
+            log.debug("GetTournament {}", currentTournament);
+            res.put("TournamentID", this.currentTournament.getTournamentID());
+        }
+        return Uni.createFrom().item(res);
+    }
+
     @ConsumeEvent("StartTournament")
     public Uni<Object> startTournament(String tournamentID) {
         log.info("startTournament {}", tournamentID);
