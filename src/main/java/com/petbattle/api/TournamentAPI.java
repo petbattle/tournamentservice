@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
+import org.bson.types.ObjectId;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
@@ -223,6 +224,9 @@ public class TournamentAPI {
     @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX() {
         String tid = getTournament("").await().indefinitely().getString("TournamentID");
+        if (null == tid) {
+            return leaderboard.data("pets", new ArrayList());
+        }
         registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
         return leaderboard.data("pets", leaderboard(tid).await().indefinitely());
     }
