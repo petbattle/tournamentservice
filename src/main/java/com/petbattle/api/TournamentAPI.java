@@ -225,7 +225,6 @@ public class TournamentAPI {
     public TemplateInstance leaderboardUX() {
         String tid = getTournament("").await().indefinitely().getString("TournamentID");
         if (null == tid) {
-            registry.counter("GetLeaderboard", Tags.empty()).increment();
             return leaderboard.data("pets", new ArrayList());
         }
         registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
