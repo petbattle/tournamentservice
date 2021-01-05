@@ -9,6 +9,7 @@ metadata:
 spec:
   lookupPolicy:
     local: true
+{{- if (eq .Values.istag.enabled true) }}
   tags:
     - annotations:
         openshift.io/imported-from: petbattle/pet-battle-tournament
@@ -17,3 +18,4 @@ spec:
         name: {{ .Values.image_repository }}/{{ .Values.image_namespace }}/{{ .Values.image_name }}:{{ .Values.image_version }}
       importPolicy: {}
       name: {{ .Chart.AppVersion }}
+{{ end }}
