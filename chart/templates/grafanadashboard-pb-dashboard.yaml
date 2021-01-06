@@ -6,6 +6,9 @@ metadata:
   generation: 1
   labels:
     monitoring-key: grafana
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
 spec:
   customFolderName: petbattle
   json: >-
