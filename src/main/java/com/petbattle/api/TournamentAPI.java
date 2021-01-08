@@ -100,8 +100,8 @@ public class TournamentAPI {
 
     @GET
     @Path("{id}/leaderboard")
-    //@RolesAllowed("pbplayer")
-    //@SecurityRequirement(name="jwt", scopes = {})
+    @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
         log.info("Get leaderboard for tournament {}", tournamentID);
