@@ -46,11 +46,11 @@ You can change whether the infrastructure is deployed or not by using the tag (d
 helm template dabook chart/ --set tags.infra=false
 ```
 
-To deploy a pre-packaged version of the chart including infra
+To deploy a pre-packaged version of the chart including infrastructure into a new namespace
 ```bash
 helm repo add petbattle https://petbattle.github.io/helm-charts
 helm repo update
-helm install petbattle/pet-battle-tournament --set pet-battle-infra.operatorgroup.targetNamespaces={petbattle} --namespace petbattle --create-namespace --generate-name
+helm install petbattle/pet-battle-tournament --set pet-battle-infra.operatorgroup.enabled=true --set pet-battle-infra.operatorgroup.targetNamespaces={petbattle} --namespace petbattle --create-namespace --generate-name
 ```
 
 ### Deploy the cert-util operator (deploy this only once for the whole cluster)
