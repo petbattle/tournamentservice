@@ -8,7 +8,7 @@ If you want to learn more about Quarkus, please visit its website: https://quark
 
 You can run your application in dev mode that enables live coding using:
 ```
-./mvnw quarkus:dev
+mvn quarkus:dev
 ```
 
 ## Integration Testing
@@ -44,6 +44,13 @@ dependencies:
 You can change whether the infrastructure is deployed or not by using the tag (default: `true`)
 ```bash
 helm template dabook chart/ --set tags.infra=false
+```
+
+To deploy a pre-packaged version of the chart including infra
+```bash
+helm repo add petbattle https://petbattle.github.io/helm-charts
+helm repo update
+helm install petbattle/pet-battle-tournament --set pet-battle-infra.operatorgroup.targetNamespaces={petbattle} --namespace petbattle --create-namespace --generate-name
 ```
 
 ### Deploy the cert-util operator (deploy this only once for the whole cluster)
