@@ -47,7 +47,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: CLIENT_SECRET
-                  name: keycloak-client-secret-pbclient
+                  name: keycloak-client-secret-pbserver
             {{- if .Values.mongodbTemplate.enabled }}
             - name: DATABASE_ADMIN_PASSWORD
               valueFrom:
@@ -122,7 +122,7 @@ spec:
             secret:
               defaultMode: 384
               optional: false
-              secretName: keycloak-client-secret-pbclient
+              secretName: keycloak-client-secret-pbserver
           - configMap:
               defaultMode: 384
               name: java-truststore
