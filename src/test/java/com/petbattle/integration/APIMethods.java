@@ -1,5 +1,6 @@
 package com.petbattle.integration;
 
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import javax.ws.rs.core.Response.*;
 
@@ -10,8 +11,9 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class APIMethods {
 
-    public static void CallCancelTournament(String accessToken, String TID) {
 
+
+    public static void CallCancelTournament(String accessToken, String TID) {
         given()
                 .auth()
                 .preemptive()
@@ -117,15 +119,24 @@ public class APIMethods {
 
     public static Response CallGetLeaderBoard(String accessToken) {
         return given()
-                .contentType(JSON)
-                .auth()
-                .preemptive()
-                .oauth2(accessToken)
                 .when()
                 .get("/api/tournament/leaderboard")
                 .then()
                 .statusCode(Status.OK.getStatusCode())
-                .contentType(JSON)
+                .contentType(ContentType.JSON)
+                .log().all()
+                .extract()
+                .response();
+    }
+
+    public static Response CallGetLeaderBoardHTML(String accessToken) {
+        return given()
+                .when()
+                .get("/api/tournament/leaderboardux")
+                .then()
+                .statusCode(Status.OK.getStatusCode())
+                .contentType(ContentType.HTML)
+                .log().all()
                 .extract()
                 .response();
     }
@@ -139,5 +150,14 @@ public class APIMethods {
                 .contentType(TEXT)
                 .log().all()
                 .body(containsString(assertion));
+    }
+
+    public static void CallGetOpenAPIDefn() {
+        given()
+                .when()
+                .get("/openapi")
+                .then()
+                .statusCode(Status.OK.getStatusCode())
+                .log().all();
     }
 }

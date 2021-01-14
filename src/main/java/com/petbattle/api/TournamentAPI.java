@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.petbattle.core.PetVote;
+import com.petbattle.exceptions.TournamentException;
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
@@ -11,11 +12,12 @@ import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.smallrye.mutiny.Uni;
-import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
-import io.vertx.mutiny.core.eventbus.Message;
+import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.slf4j.Logger;
@@ -37,18 +39,15 @@ import java.util.List;
 @Consumes(MediaType.APPLICATION_JSON)
 public class TournamentAPI {
     private final Logger log = LoggerFactory.getLogger(TournamentAPI.class);
-    private ObjectMapper jsonMapper;
-    private CollectionType javaType;
     private final MeterRegistry registry;
-
     @Inject
     SecurityIdentity securityIdentity;
-
     @Inject
     Template leaderboardux;
-
     @Inject
     EventBus bus;
+    private ObjectMapper jsonMapper;
+    private CollectionType javaType;
 
     public TournamentAPI(MeterRegistry registry) {
         jsonMapper = new ObjectMapper();
@@ -59,102 +58,92 @@ public class TournamentAPI {
 
     @POST
     @RolesAllowed("pbadmin")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Create a new tournament or return the existing tournament")
-    public Uni<JsonObject> createTournament() {
+    @APIResponses(value = {@APIResponse(responseCode = "200", description = "Tournament created/retrieved")})
+    public Uni<Response> createTournament() {
         log.info("Creating tournament");
+        registry.counter("TournamentCreated", Tags.empty()).increment();
         return bus.<JsonObject>request("CreateTournament", "")
-                .onItem().invoke(() -> registry.counter("TournamentCreated", Tags.empty()).increment())
-                .onItem().transform(Message::body);
+                .map(x -> Response.ok(x.body()).build());
     }
 
     @GET
-    //@RolesAllowed("pbplayer")
-    //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the existing tournament")
-    public Uni<JsonObject> getTournament(String name) {
+    @APIResponses(value = {@APIResponse(responseCode = "200", description = "Tournament id retrieved")})
+    public Uni<Response> getTournament(String name) {
         log.info("Get tournament");
+        registry.counter("GetTournament", Tags.empty()).increment();
         return bus.<JsonObject>request("GetTournament", "")
-                .onItem().invoke(() -> registry.counter("GetTournament", Tags.empty()).increment())
-                .onItem().transform(Message::body);
+                .map(x -> Response.ok(x.body()).build());
     }
 
     @GET
     @Path("{id}")
     @RolesAllowed("pbplayer")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Return Tournament Status")
-    public Uni<JsonObject> tournamentStatus(@PathParam("id") String tournamentID) {
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Tournament status"),
+            @APIResponse(responseCode = "404", description = "Tournament not found")})
+    public Uni<Response> tournamentStatus(@PathParam("id") String tournamentID) {
         log.info("Get status for tournament {}", tournamentID);
-
-        Uni<JsonObject> res = bus.<JsonObject>request("GetTournamentStatus", tournamentID)
-                .onItem().invoke(() -> registry.counter("TournamentStatus", Tags.empty()).increment())
-                .onItem().transform(Message::body);
-
-        return res;
+        registry.counter("TournamentStatus", Tags.empty()).increment();
+        return bus.<JsonObject>request("GetTournamentStatus", tournamentID)
+                .map(x -> Response.ok(x.body()).build())
+                .onFailure(TournamentException.class)
+                .recoverWithItem(failure -> (Response.serverError().status(Response.Status.NOT_FOUND.getStatusCode(), failure.getMessage())).build());
     }
 
-    @GET
-    @Path("leaderboard")
-    @RolesAllowed("pbplayer")
-    @SecurityRequirement(name="jwt", scopes = {})
-    @Timed
-    public Uni<List<PetVote>> leaderboard() {
-        String tid = getTournament("").await().indefinitely().getString("TournamentID");
-        if (null == tid) {
-            List<PetVote> lb = new ArrayList<>();
-            return Uni.createFrom().item(lb);
-        }
-        log.info("Get leaderboard for tournament {}", tid);
 
-        Uni<String> res = bus.<String>request("GetLeaderboard", tid)
-                .onItem().transform(Message::body);
-        registry.counter("TournamentLeaderboard", Tags.empty()).increment();
-        return res.onItem().transform(result -> {
-            List<PetVote> lb = new ArrayList<>();
-            try {
-                lb = jsonMapper.readValue(result, javaType);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            return lb;
-        });
-    }
 
     @PUT
     @Path("{id}")
     @RolesAllowed("pbadmin")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Start a tournament")
-    public Uni<Object> startTournament(@PathParam("id") String tournamentID) {
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Tournament started"),
+            @APIResponse(responseCode = "400", description = "Invalid tournament id passed or tournament already started")})
+    public Uni<Response> startTournament(@PathParam("id") String tournamentID) {
         log.info("Start tournament {}", tournamentID);
-        return bus.<JsonObject>request("StartTournament", tournamentID)
-                .onItem().invoke(() -> registry.counter("TournamentStart", Tags.empty()).increment())
-                .onItem().transform(Message::body);
+        registry.counter("TournamentStart", Tags.empty()).increment();
+        return bus.<Void>request("StartTournament", tournamentID)
+                .onItem().transform(b -> Response.ok(b.body()).build())
+                .onFailure(TournamentException.class)
+                .recoverWithItem(failure -> (Response.serverError().status(Response.Status.BAD_REQUEST.getStatusCode(), failure.getMessage())).build());
     }
+
 
     @DELETE
     @Path("{id}")
     @RolesAllowed("pbadmin")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Stop a tournament")
-    public Uni<Object> stopTournament(@PathParam("id") String tournamentID) {
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Tournament started"),
+            @APIResponse(responseCode = "400", description = "Invalid tournament id passed or tournament not started")})
+    public Uni<Response> stopTournament(@PathParam("id") String tournamentID) {
         log.info("Stop tournament {}", tournamentID);
-        return bus.<JsonObject>request("StopTournament", tournamentID)
-                .onItem().invoke(() -> registry.counter("TournamentStopped", Tags.empty()).increment())
-                .onItem().transform(Message::body);
+        registry.counter("TournamentStopped", Tags.empty()).increment();
+        return bus.<Void>request("StopTournament", tournamentID)
+                .onItem().transform(b -> Response.ok().build())
+                .onFailure(TournamentException.class)
+                .recoverWithItem(failure -> (Response.serverError().status(Response.Status.BAD_REQUEST.getStatusCode(), failure.getMessage())).build());
     }
 
     @DELETE
     @Path("{id}/cancel")
     @RolesAllowed("pbadmin")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Operation(summary = "Cancel a tournament")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Tournament cancelled")})
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         registry.counter("TournamentCancelled", Tags.empty()).increment();
@@ -164,25 +153,34 @@ public class TournamentAPI {
     @POST
     @Path("{id}/add/{petId}")
     @RolesAllowed("pbadmin")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Add a pet to a tournament")
-    public Uni<Object> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Pet added to tournament"),
+            @APIResponse(responseCode = "400", description = "Exception during processing")})
+    public Uni<Response> addPetToTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("addPetToTournament {}:{}", tournamentID, petID);
+        registry.counter("TournamentPetsAdded", Tags.of("TID", tournamentID)).increment();
         JsonObject params = new JsonObject();
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
-        return bus.<JsonObject>request("AddPetToTournament", params)
-                .onItem().invoke(() -> registry.counter("TournamentPetsAdded", Tags.of("TID",tournamentID)).increment())
-                .onItem().transform(Message::body);
+
+        return bus.<Void>request("AddPetToTournament", params)
+                .map(x -> Response.ok().build())
+                .onFailure(TournamentException.class)
+                .recoverWithItem(failure -> (Response.serverError().status(Response.Status.BAD_REQUEST.getStatusCode(), failure.getMessage())).build());
     }
 
     @POST
     @Path("{id}/vote/{petId}")
     @RolesAllowed("pbplayer")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Vote for a pet in a tournament")
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Vote for pet registered"),
+            @APIResponse(responseCode = "400", description = "Exception during processing")})
     public Uni<Response> voteForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID, @NotNull @QueryParam("dir") String dir) {
         log.info("VotePetInTournament {}:{} Dir{}", tournamentID, petID, dir);
         if ((!dir.equalsIgnoreCase("up")) && (!dir.equalsIgnoreCase("down")))
@@ -192,28 +190,29 @@ public class TournamentAPI {
         params.put("tournamentId", tournamentID);
         params.put("petId", petID);
         params.put("dir", dir);
+        registry.counter("PetVotes",Tags.of("TID", tournamentID).and("DIR", dir.toUpperCase())).increment();
 
-        return bus.<JsonObject>request("ProcessPetVote", params)
-                .onItem().invoke(() -> registry.counter("TournamentPetVote",
-                        Tags.of("TID",tournamentID).and("DIR",dir.toUpperCase())).increment())
-                .onItem().transform(b -> Response.ok(b.body()).build())
+        return bus.<Void>request("ProcessPetVote", params)
+                .onItem().transform(b -> Response.ok().build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
 
     @GET
     @Path("{id}/votes/{petId}")
     @RolesAllowed("pbplayer")
-    @SecurityRequirement(name="jwt", scopes = {})
+    @SecurityRequirement(name = "jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the number of votes for a pet in a tournament")
-    public Uni<Response> getVotesForPetInTournament( @PathParam("id") String tournamentID,@PathParam("petId") String petID) {
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Vote for pet"),
+            @APIResponse(responseCode = "400", description = "Exception during processing")})
+    public Uni<Response> getVotesForPetInTournament(@PathParam("id") String tournamentID, @PathParam("petId") String petID) {
         log.info("getVotesForPetInTournament {}", petID);
+        registry.counter("GetPetVote",Tags.of("TID", tournamentID).and("ACTION", "GET")).increment();
         JsonObject params = new JsonObject();
         params.put("petId", petID);
         params.put("tournamentId", tournamentID);
         return bus.<JsonObject>request("GetPetVote", params)
-                .onItem().invoke(() -> registry.counter("TournamentPetVote",
-                        Tags.of("TID",tournamentID).and("ACTION","GET")).increment())
                 .onItem().transform(b -> Response.ok(b.body()).build())
                 .onFailure().recoverWithUni(Uni.createFrom().item(Response.status(Response.Status.BAD_REQUEST).build()));
     }
@@ -227,12 +226,49 @@ public class TournamentAPI {
     @Timed
     @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX() {
-        String tid = getTournament("").await().indefinitely().getString("TournamentID");
+        registry.counter("GetLeaderboardUX", Tags.empty()).increment();
+        String tid = bus.<JsonObject>request("GetTournament", "").await().indefinitely().body().getString("TournamentID");
         if (null == tid) {
             return leaderboardux.data("pets", new ArrayList());
         }
-        registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
-        return leaderboardux.data("pets", leaderboard().await().indefinitely());
+        Uni<List<PetVote>> petdata = bus.<String>request("GetLeaderboard", tid)
+                .onItem().transform(result -> {
+                    List<PetVote> lb = new ArrayList<>();
+                    try {
+                        lb = jsonMapper.readValue(result.body(), javaType);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return lb;
+                });
+
+        return leaderboardux.data("pets", petdata.await().indefinitely());
     }
 
+    @GET
+    @Path("/leaderboard")
+//    @RolesAllowed("pbplayer")
+//    @SecurityRequirement(name = "jwt", scopes = {})
+    @Produces(MediaType.APPLICATION_JSON)
+    @Timed
+    @APIResponses(value = {
+            @APIResponse(responseCode = "200", description = "Tournament leaderboard"),
+            @APIResponse(responseCode = "501", description = "Internal server error")})
+    public Uni<Response> leaderboard(@PathParam("id") String tournamentID) {
+        log.info("Get leaderboard for tournament {}", tournamentID);
+        registry.counter("GetLeaderboard", Tags.empty()).increment();
+
+        return bus.<String>request("GetLeaderboard", tournamentID)
+                .onItem().transform(result -> {
+                    List<PetVote> lb = new ArrayList<>();
+                    try {
+                        lb = jsonMapper.readValue(result.body(), javaType);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    return lb;
+                }).map(x -> Response.ok(x).build())
+                .onFailure()
+                .recoverWithItem(failure -> (Response.serverError().status(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), failure.getMessage())).build());
+    }
 }

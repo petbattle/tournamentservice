@@ -39,13 +39,13 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         addAdmin(keycloakAdminClient);
 
         RealmResource realmResource = keycloakAdminClient.realm("pbrealm");
-        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbclient").get(0);
+        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbserver").get(0);
 
         String sec = realmResource.clients().get(app1Client.getId()).getSecret().getValue();
 
         res.put("quarkus.oidc.auth-server-url", SSO.getAuthServerUrl() + "/realms/pbrealm");
         res.put("quarkus.oidc.credentials.secret",sec);
-        res.put("quarkus.pbclient.test.secret",sec);
+        res.put("quarkus.pbserver.test.secret",sec);
         return res;
     }
 
@@ -72,7 +72,7 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         passwordCred.setValue("player1pwd");
         userResource.resetPassword(passwordCred);
 
-        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbclient").get(0);
+        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbserver").get(0);
 
         RoleRepresentation userClientRole = realmResource.clients().get(app1Client.getId())
                 .roles().get("pbplayer").toRepresentation();
@@ -101,7 +101,7 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         passwordCred.setValue("pbadminpwd");
         userResource.resetPassword(passwordCred);
 
-        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbclient").get(0);
+        ClientRepresentation app1Client = realmResource.clients().findByClientId("pbserver").get(0);
 
         RoleRepresentation userClientRole = realmResource.clients().get(app1Client.getId())
                 .roles().get("pbadmin").toRepresentation();
