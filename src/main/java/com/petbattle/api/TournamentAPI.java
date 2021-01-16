@@ -99,8 +99,8 @@ public class TournamentAPI {
 
     @GET
     @Path("leaderboard")
-    //@RolesAllowed("pbplayer")
-    //@SecurityRequirement(name="jwt", scopes = {})
+    @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     public Uni<List<PetVote>> leaderboard() {
         String tid = getTournament("").await().indefinitely().getString("TournamentID");
@@ -222,8 +222,8 @@ public class TournamentAPI {
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
     @Path("leaderboardux")
-    //@RolesAllowed("pbplayer")
-    //@SecurityRequirement(name="jwt", scopes = {})
+    @RolesAllowed("pbplayer")
+    @SecurityRequirement(name="jwt", scopes = {})
     @Timed
     @Operation(summary = "Return the leaderboard for a tournament")
     public TemplateInstance leaderboardUX() {
