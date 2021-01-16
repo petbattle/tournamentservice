@@ -15,7 +15,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.vertx.core.json.JsonObject;
 import io.vertx.mutiny.core.eventbus.EventBus;
 import io.vertx.mutiny.core.eventbus.Message;
-import org.bson.types.ObjectId;
 import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
@@ -46,7 +45,7 @@ public class TournamentAPI {
     SecurityIdentity securityIdentity;
 
     @Inject
-    Template leaderboard;
+    Template leaderboardux;
 
     @Inject
     EventBus bus;
@@ -100,8 +99,8 @@ public class TournamentAPI {
 
     @GET
     @Path("leaderboard")
-    @RolesAllowed("pbplayer")
-    @SecurityRequirement(name="jwt", scopes = {})
+    //@RolesAllowed("pbplayer")
+    //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
     public Uni<List<PetVote>> leaderboard() {
         String tid = getTournament("").await().indefinitely().getString("TournamentID");
@@ -222,7 +221,7 @@ public class TournamentAPI {
     @GET
     @Consumes(MediaType.TEXT_HTML)
     @Produces(MediaType.TEXT_HTML)
-    @Path("leaderboard")
+    @Path("leaderboardux")
     //@RolesAllowed("pbplayer")
     //@SecurityRequirement(name="jwt", scopes = {})
     @Timed
@@ -230,10 +229,10 @@ public class TournamentAPI {
     public TemplateInstance leaderboardUX() {
         String tid = getTournament("").await().indefinitely().getString("TournamentID");
         if (null == tid) {
-            return leaderboard.data("pets", new ArrayList());
+            return leaderboardux.data("pets", new ArrayList());
         }
         registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
-        return leaderboard.data("pets", leaderboard().await().indefinitely());
+        return leaderboardux.data("pets", leaderboard().await().indefinitely());
     }
 
 }
