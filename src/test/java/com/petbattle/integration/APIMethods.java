@@ -115,14 +115,14 @@ public class APIMethods {
     }
 
 
-    public static Response CallGetLeaderBoard(String accessToken, String TID) {
+    public static Response CallGetLeaderBoard(String accessToken) {
         return given()
                 .contentType(JSON)
                 .auth()
                 .preemptive()
                 .oauth2(accessToken)
                 .when()
-                .get("/api/tournament/{tid}/leaderboard", TID)
+                .get("/api/tournament/leaderboard")
                 .then()
                 .statusCode(Status.OK.getStatusCode())
                 .contentType(JSON)

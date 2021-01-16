@@ -99,14 +99,19 @@ public class TournamentAPI {
     }
 
     @GET
-    @Path("{id}/leaderboard")
+    @Path("leaderboard")
     @RolesAllowed("pbplayer")
     @SecurityRequirement(name="jwt", scopes = {})
     @Timed
-    public Uni<List<PetVote>> leaderboard(@PathParam("id") String tournamentID) {
-        log.info("Get leaderboard for tournament {}", tournamentID);
+    public Uni<List<PetVote>> leaderboard() {
+        String tid = getTournament("").await().indefinitely().getString("TournamentID");
+        if (null == tid) {
+            List<PetVote> lb = new ArrayList<>();
+            return Uni.createFrom().item(lb);
+        }
+        log.info("Get leaderboard for tournament {}", tid);
 
-        Uni<String> res = bus.<String>request("GetLeaderboard", tournamentID)
+        Uni<String> res = bus.<String>request("GetLeaderboard", tid)
                 .onItem().transform(Message::body);
         registry.counter("TournamentLeaderboard", Tags.empty()).increment();
         return res.onItem().transform(result -> {
@@ -228,7 +233,7 @@ public class TournamentAPI {
             return leaderboard.data("pets", new ArrayList());
         }
         registry.counter("GetLeaderboard", Tags.of("TID", tid)).increment();
-        return leaderboard.data("pets", leaderboard(tid).await().indefinitely());
+        return leaderboard.data("pets", leaderboard().await().indefinitely());
     }
 
 }

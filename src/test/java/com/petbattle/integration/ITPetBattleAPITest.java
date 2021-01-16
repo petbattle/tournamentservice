@@ -189,12 +189,12 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID,"1","up", 200);
         CallVote4Pet(this.playerToken,TID, "4","down", 200);
 
-        Response res = CallGetLeaderBoard(this.playerToken,TID);
+        Response res = CallGetLeaderBoard(this.playerToken);
 
         //Stop the test
         CallStopTournament(adminToken,TID);
 
-        Response res2 = CallGetLeaderBoard(this.playerToken,TID);
+        Response res2 = CallGetLeaderBoard(this.playerToken);
 
         String json1 = res.asString();
         String json2 = res2.asString();
@@ -244,7 +244,7 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
 
-        Response res1 = CallGetLeaderBoard(this.playerToken,TID);
+        Response res1 = CallGetLeaderBoard(this.playerToken);
 
         List<String> vote1 = res1.jsonPath()
                 .getList("petId");
@@ -266,7 +266,7 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
 
-        Response res2 = CallGetLeaderBoard(this.playerToken,TID);
+        Response res2 = CallGetLeaderBoard(this.playerToken);
 
         List<String> vote2 = res2.jsonPath()
                 .getList("petId");
