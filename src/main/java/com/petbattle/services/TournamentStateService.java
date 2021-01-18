@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.petbattle.core.PetVote;
 import com.petbattle.core.Tournament;
+import com.petbattle.exceptions.TournamentException;
 import com.petbattle.repository.TournamentRepository;
 import com.petbattle.repository.TournamentTemporalRepository;
 import io.quarkus.infinispan.client.Remote;
@@ -79,7 +80,7 @@ public class TournamentStateService {
     }
 
     @ConsumeEvent("StartTournament")
-    public Uni<Object> startTournament(String tournamentID) {
+    public Uni<Void> startTournament(String tournamentID) {
         log.info("startTournament {}", tournamentID);
         if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
@@ -90,11 +91,11 @@ public class TournamentStateService {
             if (!this.currentTournament.isStarted())
                 currentTournament.StartTournament();
         }
-        return Uni.createFrom().item(new Object());
+        return Uni.createFrom().nullItem();
     }
 
     @ConsumeEvent("StopTournament")
-    public Uni<Object> stopTournament(String tournamentID) {
+    public Uni<Void> stopTournament(String tournamentID) {
         log.info("stopTournament {}", tournamentID);
         if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
 
@@ -109,17 +110,17 @@ public class TournamentStateService {
                 tournamentRepository.persist(currentTournament);
             }
         }
-        return Uni.createFrom().item(new Object());
+        return Uni.createFrom().nullItem();
     }
 
 
     @ConsumeEvent("GetTournamentStatus")
     public Uni<JsonObject> statusTournament(String tournamentID) {
-        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+        if (this.currentTournament == null) return Uni.createFrom().failure(new TournamentException("Null TournamentId"));
 
         if (!tournamentID.equalsIgnoreCase(currentTournament.getTournamentID())) {
             log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tournamentID, currentTournament.getTournamentID());
-            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+            return Uni.createFrom().failure(new TournamentException("Incorrect TournamentId"));
         } else {
             JsonObject res = new JsonObject();
             res.put("State", this.currentTournament.getTournamentState());
@@ -139,6 +140,8 @@ public class TournamentStateService {
         List<PetVote> res = new ArrayList<>();
         log.info("getTournamentLB {}", tournamentID);
 
+        if (tournamentID==null) tournamentID = this.currentTournament.getTournamentID();
+
         if (this.currentTournament == null) {
             Tournament oldTournament = tournamentRepository.findById(new ObjectId(tournamentID));
             //TODO : Read form DB
@@ -155,36 +158,36 @@ public class TournamentStateService {
     }
 
     @ConsumeEvent("AddPetToTournament")
-    public Uni<Object> addPetToTournament(JsonObject params) {
+    public Uni<Void> addPetToTournament(JsonObject params) {
         String tourID = params.getString("tournamentId");
         String petID = params.getString("petId");
         log.info("addPetToTournament {}:{}", tourID, petID);
 
-        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+        if (this.currentTournament == null) return Uni.createFrom().failure(new TournamentException("Tournament Not Created"));
 
         if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())) {
             log.warn("Incorrect Tournament id {} passed in request, active tournament {}", tourID, currentTournament.getTournamentID());
-            return Uni.createFrom().failure(new Exception("Incorrect TournamentId"));
+            return Uni.createFrom().failure(new TournamentException("Incorrect TournamentId"));
         }
 
         if (currentTournament.isStarted()) {
             log.warn("Tournament started, addPetToTournament {}:{} not allowed", tourID, petID);
-            return Uni.createFrom().failure(new Exception("TournamentId already active unable to add pet"));
+            return Uni.createFrom().failure(new TournamentException("TournamentId already active unable to add pet"));
         }
         TourTemporalStore.addPet(petID);
         currentTournament.addPet(petID);
 
-        return Uni.createFrom().item(new Object());
+        return Uni.createFrom().nullItem();
     }
 
     @ConsumeEvent("ProcessPetVote")
-    public Uni<Object> voteForPetInTournament(JsonObject params) {
+    public Uni<Void> voteForPetInTournament(JsonObject params) {
         String tourID = params.getString("tournamentId");
         String petID = params.getString("petId");
         long timestamp = params.getLong("timestamp");
         String direction = params.getString("dir");
 
-        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+        if (this.currentTournament == null) return Uni.createFrom().failure(new TournamentException("Tournament Not Created"));
 
         log.info("voteForPetInTournament {}:{} dir {} @TS {}", tourID, petID, direction, timestamp);
         if (!tourID.equalsIgnoreCase(currentTournament.getTournamentID())) {
@@ -196,13 +199,13 @@ public class TournamentStateService {
         else
             TourTemporalStore.downVotePet(petID);
 
-        return Uni.createFrom().item(new Object());
+        return Uni.createFrom().nullItem();
     }
 
     @ConsumeEvent("GetPetVote")
     public Uni<PetVote> getVoteForPetInTournament(JsonObject params) {
         String petID = params.getString("petId");
-        if (this.currentTournament == null) return Uni.createFrom().failure(new Exception("Tournament Not Created"));
+        if (this.currentTournament == null) return Uni.createFrom().failure(new TournamentException("Tournament Not Created"));
         log.info("getVoteForPetInTournament {}", petID);
         return Uni.createFrom().item(TourTemporalStore.getPetVote(petID));
     }

@@ -30,7 +30,7 @@ public class ITPetBattleAPITest {
     final String playerPayload = "username=player1&password=player1pwd&grant_type=password";
     final String adminPayload = "username=pbadmin&password=pbadminpwd&grant_type=password";
 
-    @ConfigProperty(name="quarkus.pbclient.test.secret")
+    @ConfigProperty(name="quarkus.pbserver.test.secret")
     String clientSecret;
 
     @ConfigProperty(name="quarkus.oidc.auth-server-url")
@@ -47,12 +47,12 @@ public class ITPetBattleAPITest {
                 .contentType(URLENC)
                 .auth()
                 .preemptive()
-                .basic("pbclient",clientSecret)
+                .basic("pbserver",clientSecret)
                 .when()
                 .body(playerPayload)
                 .post(keycloakHost+"/protocol/openid-connect/token")
                 .then()
-                .log().all()
+//                .log().all()
                 .statusCode(200)
                 .contentType(JSON)
                 .body(notNullValue())
@@ -65,7 +65,7 @@ public class ITPetBattleAPITest {
                 .contentType(URLENC)
                 .auth()
                 .preemptive()
-                .basic("pbclient",clientSecret)
+                .basic("pbserver",clientSecret)
                 .when()
                 .body(adminPayload)
                 .post(keycloakHost+"/protocol/openid-connect/token")
@@ -83,13 +83,20 @@ public class ITPetBattleAPITest {
 
     @Test
     @Order(1)
+    @DisplayName("Test retrieval of OpenAPI defn")
+    public void testGetOpenAPIDefn() {
+        CallGetOpenAPIDefn();
+    }
+
+    @Test
+    @Order(2)
     @DisplayName("Test Creation of a tournament with invalid auth")
     public void testNewTournamentEndpointInvalidAuth() {
         CallCreateTournamentInvalidAuth("invalidtokenANDIknowIT");
     }
 
     @Test
-    @Order(1)
+    @Order(3)
     @DisplayName("Test Creation of a tournament and then cancel it")
     public void testNewTournamentEndpoint() {
         String TID = CallCreateTournament(this.adminToken);
@@ -99,7 +106,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(2)
+    @Order(4)
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateStartStopStatusTournamentEndpoints() {
         String TID = CallCreateTournament(this.adminToken);
@@ -115,7 +122,7 @@ public class ITPetBattleAPITest {
 
 
     @Test
-    @Order(3)
+    @Order(5)
     @DisplayName("Test Creation of a tournament, start it, stop it , get the state and finally cancel it")
     public void testCreateTournamentAddPetsEndpoints() {
         String TID =  CallCreateTournament(this.adminToken);
@@ -126,7 +133,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(4)
+    @Order(6)
     @DisplayName("Test Creation of a tournament, start it, add a pet and finally cancel it")
     public void testCreateTournamentStartAddPetsEndpoints() {
         String TID =  CallCreateTournament(this.adminToken);
@@ -138,7 +145,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(5)
+    @Order(7)
     public void testCreateStatusStartInvalidTournamentId() {
         String TID =  CallCreateTournament(adminToken);
 
@@ -177,7 +184,7 @@ public class ITPetBattleAPITest {
     }
 
     @Test
-    @Order(6)
+    @Order(8)
     public void testCreateTournamentStartAddPetsVoteEndpoints() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);
@@ -204,11 +211,11 @@ public class ITPetBattleAPITest {
         //Cancel the tournament
         CallCancelTournament(adminToken,TID);
         CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 4.0");
-        CallGetMetricsAndVerify("TournamentLeaderboard_total 2.0");
+        CallGetMetricsAndVerify("GetLeaderboard_total 2.0");
     }
 
     @Test
-    @Order(7)
+    @Order(9)
     public void testValidateVoteEndpoint() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);
@@ -219,12 +226,12 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID, "1","up", 200);
         CallVote4Pet(this.playerToken,TID, "1","down", 200);
         CallCancelTournament(adminToken,TID);
-        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"UP\",TID=\""+TID+"\",} 1.0");
-        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"DOWN\",TID=\""+TID+"\",} 1.0");
+        CallGetMetricsAndVerify("PetVotes_total{DIR=\"UP\",TID=\""+TID+"\",} 1.0");
+        CallGetMetricsAndVerify("PetVotes_total{DIR=\"DOWN\",TID=\""+TID+"\",} 1.0");
     }
 
     @Test
-    @Order(8)
+    @Order(10)
     public void testLeaderboardEndpoints() {
         String TID =  CallCreateTournament(adminToken);
         CallAddPet(this.adminToken,TID, "1", 200);
@@ -240,9 +247,9 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"4","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","Up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","uP", 200);
+        CallVote4Pet(this.playerToken,TID,"3","UP", 200);
 
         Response res1 = CallGetLeaderBoard(this.playerToken);
 
@@ -257,11 +264,11 @@ public class ITPetBattleAPITest {
 
         CallVote4Pet(this.playerToken,TID,"1","up", 200);
         CallVote4Pet(this.playerToken,TID,"4","down", 200);
-        CallVote4Pet(this.playerToken,TID,"4","down", 200);
-        CallVote4Pet(this.playerToken,TID,"4","down", 200);
+        CallVote4Pet(this.playerToken,TID,"4","doWN", 200);
+        CallVote4Pet(this.playerToken,TID,"4","DOwn", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","down", 200);
+        CallVote4Pet(this.playerToken,TID,"3","DOWN", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
@@ -279,8 +286,8 @@ public class ITPetBattleAPITest {
         //Cancel the tournament
         CallCancelTournament(adminToken,TID);
 
-        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"UP\",TID=\""+TID+"\",} 16.0");
-        CallGetMetricsAndVerify("TournamentPetVote_total{DIR=\"DOWN\",TID=\""+TID+"\",} 4.0");
+        CallGetMetricsAndVerify("PetVotes_total{DIR=\"UP\",TID=\""+TID+"\",} 16.0");
+        CallGetMetricsAndVerify("PetVotes_total{DIR=\"DOWN\",TID=\""+TID+"\",} 4.0");
         CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 4.0");
     }
 

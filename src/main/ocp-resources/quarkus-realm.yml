@@ -291,7 +291,7 @@
           "attributes": {}
         }
       ],
-      "pbclient": [
+      "pbserver": [
         {
           "id": "0a2ccb9b-7346-497b-bc82-7d321e293fb4",
           "name": "uma_protection",
@@ -433,11 +433,11 @@
     {
       "id": "fd68aceb-6923-4bd0-811a-a00f1396ce76",
       "createdTimestamp": 1596568958407,
-      "username": "service-account-pbclient",
+      "username": "service-account-pbserver",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
-      "serviceAccountClientId": "pbclient",
+      "serviceAccountClientId": "pbserver",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "realmRoles": [
@@ -447,7 +447,7 @@
         "pbplayer"
       ],
       "clientRoles": {
-        "pbclient": [
+        "pbserver": [
           "uma_protection"
         ],
         "account": [
@@ -660,7 +660,7 @@
     },
     {
       "id": "0ac5df91-e044-4051-bd03-106a3a5fb9cc",
-      "clientId": "pbclient",
+      "clientId": "pbserver",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -767,7 +767,7 @@
           },
           {
             "name": "Default Resource",
-            "type": "urn:pbclient:resources:default",
+            "type": "urn:pbserver:resources:default",
             "ownerManagedAccess": false,
             "attributes": {},
             "_id": "bf5e7c49-21e2-41ba-9c68-50000d9eb874",
@@ -840,7 +840,7 @@
             "logic": "POSITIVE",
             "decisionStrategy": "UNANIMOUS",
             "config": {
-              "defaultResourceType": "urn:pbclient:resources:default",
+              "defaultResourceType": "urn:pbserver:resources:default",
               "applyPolicies": "[\"Default Policy\"]"
             }
           }

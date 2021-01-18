@@ -1,16 +1,16 @@
 apiVersion: keycloak.org/v1alpha1
 kind: KeycloakClient
 metadata:
-  name: pbclient
+  name: pbserver
   labels:
-    client: pbclient
+    client: pbserver
 spec:
   realmSelector:
     matchLabels:
       realm: pbrealm
   client:
-    name: pbclient
-    clientId: pbclient
+    name: pbserver
+    clientId: pbserver
     bearerOnly: false
     protocol: openid-connect
     rootUrl: https://www.keycloak.org/app/
