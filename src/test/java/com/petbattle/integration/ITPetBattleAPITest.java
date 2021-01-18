@@ -247,9 +247,9 @@ public class ITPetBattleAPITest {
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"4","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","Up", 200);
+        CallVote4Pet(this.playerToken,TID,"3","uP", 200);
+        CallVote4Pet(this.playerToken,TID,"3","UP", 200);
 
         Response res1 = CallGetLeaderBoard(this.playerToken);
 
@@ -264,11 +264,11 @@ public class ITPetBattleAPITest {
 
         CallVote4Pet(this.playerToken,TID,"1","up", 200);
         CallVote4Pet(this.playerToken,TID,"4","down", 200);
-        CallVote4Pet(this.playerToken,TID,"4","down", 200);
-        CallVote4Pet(this.playerToken,TID,"4","down", 200);
+        CallVote4Pet(this.playerToken,TID,"4","doWN", 200);
+        CallVote4Pet(this.playerToken,TID,"4","DOwn", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
         CallVote4Pet(this.playerToken,TID,"2","up", 200);
-        CallVote4Pet(this.playerToken,TID,"3","down", 200);
+        CallVote4Pet(this.playerToken,TID,"3","DOWN", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
         CallVote4Pet(this.playerToken,TID,"3","up", 200);
