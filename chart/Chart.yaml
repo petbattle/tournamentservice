@@ -10,7 +10,7 @@ maintainers:
 - name: noelo
 dependencies:
   - name: pet-battle-infra
-    version: "1.0.9"
+    version: "1.0.10"
     repository: "https://eformat.github.io/helm-charts"
     import-values:
       - child: infinispan
