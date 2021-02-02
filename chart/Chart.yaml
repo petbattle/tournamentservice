@@ -11,7 +11,7 @@ maintainers:
 dependencies:
   - name: pet-battle-infra
     version: "1.0.10"
-    repository: "https://eformat.github.io/helm-charts"
+    repository: "https://petbattle.github.io/helm-charts"
     import-values:
       - child: infinispan
         parent: infinispan
