@@ -21,10 +21,12 @@
         <jacoco.version>0.8.6</jacoco.version>
         <dependency-check-maven.version>6.0.2</dependency-check-maven.version>
         <sonar-maven-plugin.version>3.7.0.1746</sonar-maven-plugin.version>
-        <sonar.dependencyCheck.htmlReportPath>${project.build.directory}/dependency-check-report.html</sonar.dependencyCheck.htmlReportPath>
+        <sonar.dependencyCheck.htmlReportPath>${project.build.directory}/dependency-check-report.html
+        </sonar.dependencyCheck.htmlReportPath>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.coverage.jacoco.xmlReportPaths>${project.build.directory}/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
         <sonar.jacoco.reportsPaths>${project.build.directory}/jacoco.exec</sonar.jacoco.reportsPaths>
     </properties>
     <dependencyManagement>
@@ -39,7 +41,7 @@
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>testcontainers-bom</artifactId>
-                <version>1.15.0-rc2</version>
+                <version>1.15.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -62,6 +64,24 @@
             <groupId>com.github.dasniko</groupId>
             <artifactId>testcontainers-keycloak</artifactId>
             <version>1.3.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.30</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -213,7 +233,8 @@
                 <configuration>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties
+                    </generateGitPropertiesFilename>
                     <includeOnlyProperties>
                         <includeOnlyProperty>^git.build.(time|version)$</includeOnlyProperty>
                         <includeOnlyProperty>^git.commit.id.(abbrev|full|time)$</includeOnlyProperty>
@@ -307,6 +328,14 @@
                     <plugin>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <version>${surefire-plugin.version}</version>
+                        <configuration>
+                            <environmentVariables>
+<!--                                <DOCKER_HOST>tcp:////localhost:8880</DOCKER_HOST>-->
+<!--                                <DOCKER_HOST>unix:///run/user/1000/podman/podman.sock</DOCKER_HOST>-->
+                                <TESTCONTAINERS_RYUK_DISABLED>true</TESTCONTAINERS_RYUK_DISABLED>
+                                <api.version>v2</api.version>
+                            </environmentVariables>
+                        </configuration>
                         <executions>
                             <execution>
                                 <goals>
