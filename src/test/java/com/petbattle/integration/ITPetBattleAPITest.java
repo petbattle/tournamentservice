@@ -291,6 +291,20 @@ public class ITPetBattleAPITest {
         CallGetMetricsAndVerify("TournamentPetsAdded_total{TID=\""+TID+"\",} 4.0");
     }
 
+    @Test
+    @Order(11)
+    @DisplayName("Test invoking liveness probe")
+    public void testLivenessProbe() {
+        CallGetLivenessProbe("\"status\": \"UP\"");
+    }
+
+    @Test
+    @Order(12)
+    @DisplayName("Test invoking readiness probe")
+    public void testReadinessProbe() {
+        CallGetReadinessProbe("\"status\": \"UP\"");
+    }
+
     @Override
     public String toString() {
         return "ITPetBattleAPITest{" +

@@ -160,4 +160,24 @@ public class APIMethods {
                 .statusCode(Status.OK.getStatusCode())
                 .log().all();
     }
+
+    public static void CallGetReadinessProbe(String assertion) {
+        given()
+                .when()
+                .get("/health/ready")
+                .then()
+                .statusCode(Status.OK.getStatusCode())
+                .log().all()
+                .body(containsString(assertion));
+    }
+
+    public static void CallGetLivenessProbe(String assertion) {
+        given()
+                .when()
+                .get("/health/live")
+                .then()
+                .statusCode(Status.OK.getStatusCode())
+                .log().all()
+                .body(containsString(assertion));
+    }
 }
