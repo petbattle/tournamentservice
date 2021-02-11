@@ -103,7 +103,6 @@ spec:
               path: /health/live
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 0
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
@@ -113,7 +112,6 @@ spec:
               path: /health/ready
               port: 8080
               scheme: HTTP
-            initialDelaySeconds: 0
             periodSeconds: 30
             successThreshold: 1
             timeoutSeconds: 10
