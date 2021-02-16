@@ -35,6 +35,10 @@ spec:
         host: pet-battle-api
         port:
           number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -55,6 +59,10 @@ spec:
         host: pet-battle-tournament
         port:
           number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
 ---
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
@@ -75,4 +83,10 @@ spec:
         host: pet-battle
         port:
           number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
 ---
+
+
