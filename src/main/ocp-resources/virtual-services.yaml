@@ -1,0 +1,119 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: petbattle-gateway
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-cats
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /cats
+    route:
+    - destination:
+        host: pet-battle-api
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-tournament
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /api/tournament
+    route:
+    - destination:
+        host: pet-battle-tournament
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-main
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        host: pet-battle
+        port:
+          number: 8080
+---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: pet-battle-tournament-mongo
+# spec:
+#   hosts:
+#   - pet-battle-tournament-mongodb
+#   tcp:
+#   - match:
+#     - port: 27017
+#     route:
+#     - destination:
+#         host: pet-battle-tournament-mongodb
+#         port:
+#           number: 27017
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: pet-battle-api-mongo
+# spec:
+#   hosts:
+#   - pet-battle-api-mongodb
+#   tcp:
+#   - match:
+#     - port: 27017
+#     route:
+#     - destination:
+#         host: pet-battle-api-mongodb
+#         port:
+#           number: 27017
+# ---
+# apiVersion: networking.istio.io/v1alpha3
+# kind: VirtualService
+# metadata:
+#   name: pet-battle-tournament-dg
+# spec:
+#   hosts:
+#   - infinispan
+#   tcp:
+#   - match:
+#     - port: 11222
+#     route:
+#     - destination:
+#         host: infinispan
+#         port:
+#           number: 11222
