@@ -1,0 +1,78 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: petbattle-gateway-tls
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: "pb-ingressgateway-certs"
+    hosts:     
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-cats-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /cats
+      ignoreUriCase: true
+    route:
+    - destination:
+        host: pet-battle-api
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-tournament-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /api/tournament
+      ignoreUriCase: true 
+    route:
+    - destination:
+        host: pet-battle-tournament
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-main-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /
+      ignoreUriCase: true
+    route:
+    - destination:
+        host: pet-battle
+        port:
+          number: 8080
+---
