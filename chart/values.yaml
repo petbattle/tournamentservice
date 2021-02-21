@@ -7,7 +7,7 @@ replicas: 1
 image_repository: quay.io
 image_name: pet-battle-tournament
 image_namespace: petbattle
-image_version: latest
+image_version: gha-master
 # use the image specified above as tag (else tag overridden in pipeline say)
 istag:
   enabled: true
