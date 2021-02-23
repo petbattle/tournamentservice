@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: maistra.io/v2
 kind: ServiceMeshControlPlane
 metadata:
@@ -25,3 +26,4 @@ spec:
     sampling: 10000
     type: Jaeger
   version: v2.0
+{{- end}}

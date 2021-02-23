@@ -1,3 +1,4 @@
+{{- if .Values.istio.enabled }}
 apiVersion: networking.istio.io/v1alpha3
 kind: Gateway
 metadata:
@@ -56,7 +57,7 @@ spec:
       ignoreUriCase: true 
     route:
     - destination:
-        host: pet-battle-tournament.sm-test.svc.cluster.local
+        host: pet-battle-tournament.{{ .Release.Namespace }}.svc.cluster.local
         port:
           number: 8080
     retries:
@@ -80,7 +81,7 @@ spec:
       ignoreUriCase: true
     route:
     - destination:
-        host: pet-battle.sm-test.svc.cluster.local
+        host: pet-battle.{{ .Release.Namespace }}.svc.cluster.local
         port:
           number: 8080
     retries:
@@ -93,7 +94,7 @@ kind: DestinationRule
 metadata:
   name: pet-battle-port
 spec:
-  host: pet-battle.sm-test.svc.cluster.local
+  host: pet-battle.{{ .Release.Namespace }}.svc.cluster.local
   trafficPolicy: # Apply to all ports
     portLevelSettings:
     - port:
@@ -106,7 +107,7 @@ kind: DestinationRule
 metadata:
   name: pet-battle-tournament-port
 spec:
-  host: pet-battle-tournament.sm-test.svc.cluster.local
+  host: pet-battle-tournament.{{ .Release.Namespace }}.svc.cluster.local
   trafficPolicy: # Apply to all ports
     portLevelSettings:
     - port:
@@ -119,10 +120,11 @@ kind: DestinationRule
 metadata:
   name: pet-battle-api-port
 spec:
-  host: pet-battle-api.sm-test.svc.cluster.local
+  host: pet-battle-api.{{ .Release.Namespace }}.svc.cluster.local
   trafficPolicy: # Apply to all ports
     portLevelSettings:
     - port:
         number: 8080
       loadBalancer:
         simple: LEAST_CONN
+{{- end}}
