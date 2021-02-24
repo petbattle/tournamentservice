@@ -16,6 +16,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.eclipse.microprofile.opentracing.Traced;
+
+
 @Singleton
 public class TournamentTemporalRepository {
     private final Logger log = LoggerFactory.getLogger(TournamentTemporalRepository.class);
@@ -31,11 +34,13 @@ public class TournamentTemporalRepository {
     }
 
     @Timed
+    @Traced
     public void addPet(String petID) {
         voteCache.put(petID, new PetVote(petID, 0, 0));
     }
 
     @Timed
+    @Traced
     public void upVotePet(String petID) {
         PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
@@ -46,6 +51,7 @@ public class TournamentTemporalRepository {
     }
 
     @Timed
+    @Traced
     public void downVotePet(String petID) {
         PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
@@ -55,10 +61,14 @@ public class TournamentTemporalRepository {
         }
     }
 
+    @Traced
+    @Timed
     public PetVote getPetVote(String petID) {
         return voteCache.get(petID);
     }
 
+    @Traced
+    @Timed
     public int getPetTally(String petID) {
         PetVote currPetVote = voteCache.get(petID);
         if (currPetVote != null) {
@@ -70,6 +80,7 @@ public class TournamentTemporalRepository {
 
     @CacheInvalidate(cacheName = "leaderboard-cache")
     @Timed
+    @Traced
     public List<PetVote> getVotes() {
         return voteCache.values().stream()
                 .sorted(Comparator.comparingInt(PetVote::getVoteTally).reversed()).
@@ -82,6 +93,7 @@ public class TournamentTemporalRepository {
 
     @CacheResult(cacheName = "leaderboard-cache")
     @Timed
+    @Traced
     public List<PetVote> getLeaderboard() {
         return this.getVotes();
     }

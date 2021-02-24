@@ -1,0 +1,130 @@
+{{- if .Values.istio.enabled }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: petbattle-gateway-tls
+spec:
+  selector:
+    istio: ingressgateway # use istio default controller
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: "pb-ingressgateway-certs"
+    hosts:     
+    - "*"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-cats-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /cats
+      ignoreUriCase: true
+    route:
+    - destination:
+        host: pet-battle-api.sm-test.svc.cluster.local
+        port:
+          number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-tournament-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /api/tournament
+      ignoreUriCase: true 
+    route:
+    - destination:
+        host: pet-battle-tournament.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pet-battle-main-tls
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - petbattle-gateway-tls
+  http:
+  - match:
+    - uri:
+        prefix: /
+      ignoreUriCase: true
+    route:
+    - destination:
+        host: pet-battle.{{ .Release.Namespace }}.svc.cluster.local
+        port:
+          number: 8080
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: pet-battle-port
+spec:
+  host: pet-battle.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy: # Apply to all ports
+    portLevelSettings:
+    - port:
+        number: 8080
+      loadBalancer:
+        simple: LEAST_CONN
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: pet-battle-tournament-port
+spec:
+  host: pet-battle-tournament.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy: # Apply to all ports
+    portLevelSettings:
+    - port:
+        number: 8080
+      loadBalancer:
+        simple: LEAST_CONN
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: pet-battle-api-port
+spec:
+  host: pet-battle-api.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy: # Apply to all ports
+    portLevelSettings:
+    - port:
+        number: 8080
+      loadBalancer:
+        simple: LEAST_CONN
+{{- end}}

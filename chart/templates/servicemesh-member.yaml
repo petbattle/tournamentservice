@@ -1,0 +1,10 @@
+{{- if .Values.istio.enabled }}
+apiVersion: maistra.io/v1
+kind: ServiceMeshMember
+metadata:
+  name: default
+spec:
+  controlPlaneRef:
+    namespace: {{ .Release.Namespace }}
+    name: minimal-install
+{{- end}}
