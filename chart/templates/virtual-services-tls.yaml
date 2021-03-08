@@ -33,7 +33,7 @@ spec:
       ignoreUriCase: true
     route:
     - destination:
-        host: pet-battle-api.sm-test.svc.cluster.local
+        host: pet-battle-api.{{ .Release.Namespace }}.svc.cluster.local
         port:
           number: 8080
     retries:
