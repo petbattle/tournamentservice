@@ -32,7 +32,7 @@ mongodbTemplate:
 
 # service mesh
 istio:
-  enabled: true
+  enabled: false
   mtls: false
   domain:
 
