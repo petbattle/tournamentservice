@@ -7,8 +7,7 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import java.io.InputStream;
 import java.util.Properties;
 
-
-@QuarkusMain  
+@QuarkusMain
 public class Main {
     public static void main(String... args) {
         Main.printGitInfo();
@@ -29,10 +28,10 @@ public class Main {
             Properties prop = new Properties();
             prop.load(confFile);
             prop.forEach((k, v) -> {
-                System.out.println("GITINFO -> "+k +":" +v);
+                System.out.println("GITINFO -> " + k + ":" + v);
             });
         } catch (Exception ex) {
-            System.out.println("GITINFO -> Unable to get git.properties file "+ex.getMessage());
+            System.out.println("GITINFO -> Unable to get git.properties file " + ex.getMessage());
         }
     }
 }

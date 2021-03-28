@@ -33,18 +33,18 @@ public class PetVote implements Comparable<PetVote>, Serializable {
     public PetVote() {
     }
 
-    @ProtoField(number = 1,defaultValue="0")
+    @ProtoField(number = 1, defaultValue = "0")
     public int getUpVotes() {
         return upVotes;
     }
 
-    @ProtoField(number = 2,defaultValue="0")
+    @ProtoField(number = 2, defaultValue = "0")
     public int getDownVotes() {
         return downVotes;
     }
 
     @ProtoField(number = 3)
-    public String getPetId(){
+    public String getPetId() {
         return this.petId;
     }
 
@@ -80,15 +80,15 @@ public class PetVote implements Comparable<PetVote>, Serializable {
     @Override
     public String toString() {
         return "{" +
-            " upVotes='" + upVotes + "'" +
-            ", downVotes='" + downVotes + "'" +
-            ", runningTotal='" + getVoteTally()+ "'" +
-            "}";
+                " upVotes='" + upVotes + "'" +
+                ", downVotes='" + downVotes + "'" +
+                ", runningTotal='" + getVoteTally() + "'" +
+                "}";
     }
 
     @Override
-    public int compareTo(PetVote o){
-        return  o.getVoteTally() - this.getVoteTally();
+    public int compareTo(PetVote o) {
+        return o.getVoteTally() - this.getVoteTally();
     }
 
 }

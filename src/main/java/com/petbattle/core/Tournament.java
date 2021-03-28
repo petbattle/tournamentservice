@@ -59,8 +59,6 @@ public class Tournament extends PanacheMongoEntityBase {
         return (this.tournamentEndTS != 0);
     }
 
-
-
     @BsonIgnore
     public void addFinalVoteForPet(PetVote finalVote) {
         this.tournamentPets.replace(finalVote.getPetId(), finalVote);
@@ -76,7 +74,6 @@ public class Tournament extends PanacheMongoEntityBase {
         return this;
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (o == this)
@@ -85,7 +82,8 @@ public class Tournament extends PanacheMongoEntityBase {
             return false;
         }
         Tournament tournament = (Tournament) o;
-        return tournamentID == tournament.tournamentID && tournamentStartTS == tournament.tournamentStartTS && tournamentEndTS == tournament.tournamentEndTS;
+        return tournamentID == tournament.tournamentID && tournamentStartTS == tournament.tournamentStartTS
+                && tournamentEndTS == tournament.tournamentEndTS;
     }
 
     @Override

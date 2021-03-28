@@ -11,8 +11,6 @@ import static org.hamcrest.CoreMatchers.*;
 
 public class APIMethods {
 
-
-
     public static void CallCancelTournament(String accessToken, String TID) {
         given()
                 .auth()
@@ -115,7 +113,6 @@ public class APIMethods {
                 .then()
                 .statusCode(i);
     }
-
 
     public static Response CallGetLeaderBoard(String accessToken) {
         return given()

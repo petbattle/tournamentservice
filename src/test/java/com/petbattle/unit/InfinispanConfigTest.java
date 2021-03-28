@@ -26,7 +26,6 @@ class InfinispanConfigTest {
         Assertions.assertEquals(testCFg.getAuthPassWord(), "testpwd");
     }
 
-
     @Test
     void parseValidAuthFile() throws IOException {
         File authFileContents = new File(this.getClass().getResource("/infin-creds.yml").getFile());
@@ -36,6 +35,5 @@ class InfinispanConfigTest {
         Assertions.assertEquals(testCFg.getAuthUserName(), "developer");
         Assertions.assertEquals(testCFg.getAuthPassWord(), "Q3amUxpHFberq8iA");
     }
-
 
 }

@@ -15,10 +15,11 @@ public class MongoTestContainer implements QuarkusTestResourceLifecycleManager {
     public Map<String, String> start() {
         DATABASE.start();
         Map<String, String> res = new HashMap();
-        res.put("quarkus.mongodb.connection-string", "mongodb://" + DATABASE.getContainerIpAddress() + ":" + DATABASE.getFirstMappedPort());
-        res.put("quarkus.mongodb.credentials.username","");
-        res.put("quarkus.mongodb.credentials.password","");
-        res.put("quarkus.mongodb.credentials.auth-source","");
+        res.put("quarkus.mongodb.connection-string",
+                "mongodb://" + DATABASE.getContainerIpAddress() + ":" + DATABASE.getFirstMappedPort());
+        res.put("quarkus.mongodb.credentials.username", "");
+        res.put("quarkus.mongodb.credentials.password", "");
+        res.put("quarkus.mongodb.credentials.auth-source", "");
         return res;
     }
 

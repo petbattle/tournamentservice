@@ -34,7 +34,6 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
                 .password(SSO.getAdminPassword())
                 .build();
 
-
         addPlayer(keycloakAdminClient);
         addAdmin(keycloakAdminClient);
 
@@ -44,13 +43,12 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         String sec = realmResource.clients().get(app1Client.getId()).getSecret().getValue();
 
         res.put("quarkus.oidc.auth-server-url", SSO.getAuthServerUrl() + "/realms/pbrealm");
-        res.put("quarkus.oidc.credentials.secret",sec);
-        res.put("quarkus.pbserver.test.secret",sec);
+        res.put("quarkus.oidc.credentials.secret", sec);
+        res.put("quarkus.pbserver.test.secret", sec);
         return res;
     }
 
-    private void addPlayer(Keycloak keycloakAdminClient)
-    {
+    private void addPlayer(Keycloak keycloakAdminClient) {
         // Define pbPlayer
         UserRepresentation pbPlayer = new UserRepresentation();
         pbPlayer.setEnabled(true);
@@ -79,8 +77,7 @@ public class KeycloakTestContainer implements QuarkusTestResourceLifecycleManage
         userResource.roles().clientLevel(app1Client.getId()).add(Arrays.asList(userClientRole));
     }
 
-    private void addAdmin(Keycloak keycloakAdminClient)
-    {
+    private void addAdmin(Keycloak keycloakAdminClient) {
         // Define pbPlayer
         UserRepresentation pbAdmin = new UserRepresentation();
         pbAdmin.setEnabled(true);

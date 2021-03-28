@@ -1,6 +1,5 @@
 package com.petbattle.services;
 
-
 import io.quarkus.runtime.StartupEvent;
 import org.infinispan.client.hotrod.RemoteCache;
 import org.infinispan.client.hotrod.RemoteCacheManager;
@@ -26,15 +25,13 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class ServiceInit {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceInit.class.getName());
-    private static final String VOTES_CACHE_CONFIG_XML =
-            "<infinispan><cache-container>" +
-                    "<replicated-cache name=\"VotesCache\"/>" +
-                    "</cache-container></infinispan>";
+    private static final String VOTES_CACHE_CONFIG_XML = "<infinispan><cache-container>" +
+            "<replicated-cache name=\"VotesCache\"/>" +
+            "</cache-container></infinispan>";
 
-    private static final String ACTIVETOUR_CACHE_CONFIG_XML =
-            "<infinispan><cache-container>" +
-                    "<replicated-cache name=\"ActiveTournament\"/>" +
-                    "</cache-container></infinispan>";
+    private static final String ACTIVETOUR_CACHE_CONFIG_XML = "<infinispan><cache-container>" +
+            "<replicated-cache name=\"ActiveTournament\"/>" +
+            "</cache-container></infinispan>";
 
     @Inject
     RemoteCacheManager cacheManager;
@@ -46,10 +43,11 @@ public class ServiceInit {
         LOGGER.info("Creating Caches VotesCache & ActiveTournament");
         //TODO : Need to add auth pulled from secret
 
-        RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament", new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
-        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache", new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
+        RemoteCache y = cacheManager.administration().getOrCreateCache("ActiveTournament",
+                new XMLStringConfiguration(ACTIVETOUR_CACHE_CONFIG_XML));
+        RemoteCache x = cacheManager.administration().getOrCreateCache("VotesCache",
+                new XMLStringConfiguration(VOTES_CACHE_CONFIG_XML));
     }
-
 
     @ClientListener
     static class EventPrintListener {

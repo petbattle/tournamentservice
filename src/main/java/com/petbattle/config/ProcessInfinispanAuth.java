@@ -19,7 +19,8 @@ public class ProcessInfinispanAuth {
 
     public ProcessInfinispanAuth(String InfinispanAuthFileContents) {
         if (InfinispanAuthFileContents.isEmpty()) {
-            log.error("Empty authFile location, using default values which will result in errors. Set location using Infinispan.CredFileLocn ");
+            log.error(
+                    "Empty authFile location, using default values which will result in errors. Set location using Infinispan.CredFileLocn ");
             this.authPassWord = "testpwd";
             this.authUserName = "testuser";
         } else

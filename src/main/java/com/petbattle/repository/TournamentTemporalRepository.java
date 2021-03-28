@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.microprofile.opentracing.Traced;
 
-
 @Singleton
 public class TournamentTemporalRepository {
     private final Logger log = LoggerFactory.getLogger(TournamentTemporalRepository.class);
@@ -83,11 +82,10 @@ public class TournamentTemporalRepository {
     @Traced
     public List<PetVote> getVotes() {
         return voteCache.values().stream()
-                .sorted(Comparator.comparingInt(PetVote::getVoteTally).reversed()).
-                        collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(PetVote::getVoteTally).reversed()).collect(Collectors.toList());
     }
 
-    public void clearRepo(){
+    public void clearRepo() {
         voteCache.clearAsync();
     }
 
