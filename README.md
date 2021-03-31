@@ -116,4 +116,3 @@ http://hostname/health
 http://hostname/openapi
 http://hostname/health-ui/
 ```
-
