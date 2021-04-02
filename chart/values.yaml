@@ -1,7 +1,7 @@
 # OpenShift objects
 route: true
 # Deployment(True) or DeploymentConfig (False)
-deployment: false
+deployment: true
 
 replicas: 1
 image_repository: quay.io
