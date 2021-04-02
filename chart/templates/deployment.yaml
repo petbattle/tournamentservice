@@ -36,10 +36,10 @@ spec:
         - env:
             - name: JAVA_OPTIONS
               value: -Dquarkus.infinispan-client.trust-store=/deployments/config/truststore.jks -Djavax.net.ssl.trustStore=/deployments/config/truststore.jks -Djavax.net.ssl.trustStorePassword={{ .Values.jkspassword }}
-            - name: oidcvar
+            - name: OIDCVAR
               valueFrom:
                 secretKeyRef:
-                  key: OIDCVAR
+                  key: CLIENT_SECRET
                   name: keycloak-client-secret-pbserver
             {{- if .Values.mongodbTemplate.enabled }}
             - name: DATABASE_ADMIN_PASSWORD
@@ -120,7 +120,10 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /deployments/config/
-              name: javatruststorevol
+              name: javatruststore
+              readOnly: true
+            - mountPath: /tmp/secrets/keycloak
+              name: pbsecretkeycloak
               readOnly: true
       dnsPolicy: ClusterFirst
       restartPolicy: Always
@@ -128,8 +131,14 @@ spec:
       securityContext: {}
       terminationGracePeriodSeconds: 30
       volumes:
+        - name: pbsecretkeycloak
+          secret:
+            defaultMode: 384
+            optional: false
+            secretName: keycloak-client-secret-pbserver
         - configMap:
             defaultMode: 384
             name: java-truststore
-          name: javatruststorevol
+            optional: false
+          name: javatruststore
 {{- end }}
