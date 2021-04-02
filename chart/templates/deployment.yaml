@@ -132,5 +132,4 @@ spec:
             defaultMode: 384
             name: java-truststore
           name: javatruststorevol
-  test: false
 {{- end }}
