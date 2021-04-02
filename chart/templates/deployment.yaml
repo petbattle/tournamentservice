@@ -4,6 +4,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pet-battle-tournament.fullname" . }}
+  annotations:
+    image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ include "pet-battle-tournament.fullname" . }}:{{ .Values.image_version }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"pet-battle-tournament\")].image"}]'
   labels:
     {{- include "pet-battle-tournament.labels" . | nindent 4 }}
 spec:
@@ -15,8 +17,6 @@ spec:
   template:
     metadata:
       annotations:
-        image.openshift.io/triggers: '[{"from":{"kind":"ImageStreamTag","name":"{{ include "pet-battle-tournament.fullname" . }}:{{ .Values.image_version }}"},"fieldPath":"spec.template.spec.containers[?(@.name==\"pet-battle-tournament\")].image"}]'
-        alpha.image.policy.openshift.io/resolve-names: '*'
         prometheus.io/scrape: 'true'
         prometheus.io/path: '/metrics'
         prometheus.io/port: '8080'
