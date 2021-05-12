@@ -2,7 +2,7 @@ apiVersion: v2
 name: pet-battle-tournament
 description: Pet Battle Tournament
 type: application
-version: 1.0.36
+version: 1.0.37
 appVersion: 1.0.0
 home: https://petbattle.github.io/helm-charts
 icon: https://avatars1.githubusercontent.com/u/68044996?s=200&v=4
@@ -11,7 +11,7 @@ maintainers:
 - name: noelo
 dependencies:
   - name: pet-battle-infra
-    version: "1.0.27"
+    version: "1.0.28"
     repository: "https://petbattle.github.io/helm-charts"
     import-values:
       - child: infinispan
