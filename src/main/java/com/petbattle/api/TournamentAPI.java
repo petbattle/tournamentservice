@@ -146,7 +146,7 @@ public class TournamentAPI {
     public void cancelTournament(@PathParam("id") String tournamentID) {
         log.info("Cancel tournament {}", tournamentID);
         registry.counter("TournamentCancelled", Tags.empty()).increment();
-        bus.sendAndForget("CancelCurrentTournament", tournamentID);
+        bus.publish("CancelCurrentTournament", tournamentID);
     }
 
     @POST

@@ -100,7 +100,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /health/live
+              path: /q/health/live
               port: 8080
               scheme: HTTP
             periodSeconds: 30
@@ -109,7 +109,7 @@ spec:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: /health/ready
+              path: /q/health/ready
               port: 8080
               scheme: HTTP
             periodSeconds: 30
